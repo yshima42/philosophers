@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/10/31 10:36:42 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/10/31 11:28:46 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,23 +94,25 @@ void	init_philo(t_conf *conf)
 
 int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
 {
-	size_t	index;
-	int	ret;
-	
+	int				ret;
+	int				index;
+
 	if (is_right)
-		index = id - 1;
-	else
 	{
 		index = id;
 		if (id == conf->num_philos)
 			index = 0;
 	}
+	else
+		index = id - 1;
 	if (is_lock)
 		ret = pthread_mutex_lock(conf->m_forks[index]);
 	else
 		ret = pthread_mutex_unlock(conf->m_forks[index]);
-	if (!ret)
-		printf("lock, unlock error\n");
+	if (ret != 0)
+	{
+		printf("%ld: mutex can not (un)lock\n", id);
+	}
 	return (ret);
 }
 
@@ -126,6 +128,17 @@ int	take_forks(t_conf *conf, size_t id)
 	return (ret);
 }
 
+int put_forks(t_conf *conf, int id)
+{
+	int	ret;
+
+	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番どうするか検討
+	printf("has put a RIGHT fork\n");
+	ret = fork_mutex(UNLOCK, LEFT, id, conf);
+	printf("has put a LEFT fork\n");
+	return (ret);
+}
+
 void	*philo_main(void *arg)
 {
 	t_philo	*philo;
@@ -136,9 +149,9 @@ void	*philo_main(void *arg)
 		usleep(200);
 	gettimeofday(&tv, NULL);
 	printf("%06d ", tv.tv_usec);
+	printf("%lu ", philo->id);
 	take_forks(philo->conf, philo->id);
-	
-	printf("%lu is doing\n", philo->id);
+	put_forks(philo->conf, philo->id);
 	
 	return ("finished");
 }
