@@ -3,8 +3,8 @@ CFLAGS			= 	-pthread -Wall -Wextra -Werror
 NAME			= 	philo
 INCLUDES		= 	includes
 SRCS_PATH		= 	./srcs/
-SRCS_FILES    	= 	main.c ft_atoi.c
-SRCS			= 	$(addprefix $(SRCS_PATH)/, $(SRCS_FILES))
+SRCS_FILES    	= 	main.c ft_atoi.c ft_putstr_fd.c ft_strlen.c
+SRCS			= 	$(addprefix $(SRCS_PATH), $(SRCS_FILES))
 SRCS_OBJS		= 	$(SRCS:.c=.o)
 
 all:			$(NAME)

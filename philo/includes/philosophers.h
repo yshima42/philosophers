@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/10/27 17:41:57 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/10/30 15:47:27 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,13 @@
 # include <errno.h>
 # include <string.h>
 # include <pthread.h>
+# include <sys/time.h>
+# include <stdbool.h>
+
+# define LOCK	1
+# define UNLOCK	0
+# define RIGHT	1
+# define LEFT	0
 
 typedef enum e_status
 {
@@ -32,18 +39,18 @@ typedef enum e_status
 	DEAD,
 }	t_status;
 
-typedef struct s_info	t_info;
+typedef struct s_conf	t_conf;
 
 typedef struct s_philo
 {
 	size_t			id;
-	//size_t		eat_count;
+	size_t			eat_count;
 	t_status		status;
 	pthread_t		thread;
-	t_info			*info;
+	t_conf			*conf;
 }	t_philo;
 
-typedef struct s_info
+typedef struct s_conf
 {
 	size_t			num_philos;
 	size_t			die_ms;
@@ -52,10 +59,15 @@ typedef struct s_info
 	size_t			num_must_eat;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
-}	t_info;
+}	t_conf;
 
 //ft_atoi.c
 int	ft_atoi(const char *str);
 
+//ft_putstr_fd.c
+void	ft_putstr_fd(char *s, int fd);
+
+//ft_strlen.c
+size_t	ft_strlen(const char *s);
 
 #endif
