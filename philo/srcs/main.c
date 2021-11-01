@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 14:03:04 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 14:04:05 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ double	time_to_ms(struct timeval tv)
 	return ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000);
 }
 
-void	output_action(t_conf *conf, size_t id, char *action)
+void	print_action(t_conf *conf, size_t id, char *action)
 {
 	struct timeval	tv;
 
@@ -153,9 +153,9 @@ int	take_forks(t_conf *conf, size_t id)
 	int	ret;
 
 	ret = fork_mutex(LOCK, RIGHT, id, conf);
-	output_action(conf, id, "has taken a RIGHT fork");
+	print_action(conf, id, "has taken a RIGHT fork");
 	ret = fork_mutex(LOCK, LEFT, id, conf);
-	output_action(conf, id, "has taken a LEFT fork");
+	print_action(conf, id, "has taken a LEFT fork");
 	return (ret);
 }
 
@@ -164,9 +164,9 @@ int put_forks(t_conf *conf, int id)
 	int	ret;
 
 	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番どうするか検討
-	output_action(conf, id, "has put a RIGHT fork");//消す
+	print_action(conf, id, "has put a RIGHT fork");//消す
 	ret = fork_mutex(UNLOCK, LEFT, id, conf);
-	output_action(conf, id, "has put a LEFT fork");//消す
+	print_action(conf, id, "has put a LEFT fork");//消す
 	return (ret);
 }
 
@@ -184,7 +184,7 @@ int	eating(t_philo *philo)
 	double	eat_fin_ms;	
 
 	ret = take_forks(philo->conf, philo->id);
-	output_action(philo->conf, philo->id, "is eating");
+	print_action(philo->conf, philo->id, "is eating");
 	take_action(philo, philo->conf->eat_ms);
 	put_forks(philo->conf, philo->id);
 	gettimeofday(&tv, NULL);
@@ -201,7 +201,7 @@ int	sleeping(t_philo *philo)
 	struct timeval	tv;
 	double	sleep_fin_ms;
 
-	output_action(philo->conf, philo->id, "is sleeping");
+	print_action(philo->conf, philo->id, "is sleeping");
 	take_action(philo, philo->conf->sleep_ms);
 	gettimeofday(&tv, NULL);
 	sleep_fin_ms = philo->start_eat_ms - time_to_ms(tv);
@@ -217,7 +217,7 @@ int	thinking(t_philo *philo)
 	struct timeval	tv;
 	double	think_fin_ms;
 	
-	output_action(philo->conf, philo->id, "is thinking");
+	print_action(philo->conf, philo->id, "is thinking");
 	gettimeofday(&tv, NULL);
 	think_fin_ms = philo->start_eat_ms - time_to_ms(tv);
 	if ((double)philo->conf->die_ms <= think_fin_ms)
