@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 11:24:57 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 11:26:09 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,15 +170,16 @@ int	eating(t_philo *philo)
 
 int	sleeping(t_philo *philo)
 {
+	output_actions(philo->conf, philo->id, "is sleeping");
 	change_status(philo, THINK);
 	return (0);
 }
 
 int	thinking(t_philo *philo)
 {
-	
+	output_actions(philo->conf, philo->id, "is thinking");	
 	change_status(philo, EAT);
-		return (0);	
+	return (0);	
 }
 
 void	*philo_main(void *arg)
