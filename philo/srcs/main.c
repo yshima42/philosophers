@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/10/31 11:28:46 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 11:24:57 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,27 +92,37 @@ void	init_philo(t_conf *conf)
 	}
 }
 
+void	output_actions(t_conf *conf, size_t id, char *action)
+{
+	struct timeval	tv;
+	double time_in_mill;
+   
+	gettimeofday(&tv, NULL);
+	time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
+	printf("%.f %ld %s\n", time_in_mill, id, action);//これで良いのか確認
+	(void)conf;
+
+}
+
 int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
 {
 	int				ret;
 	int				index;
 
 	if (is_right)
+		index = id - 1;
+	else
 	{
 		index = id;
 		if (id == conf->num_philos)
 			index = 0;
 	}
-	else
-		index = id - 1;
 	if (is_lock)
 		ret = pthread_mutex_lock(conf->m_forks[index]);
 	else
 		ret = pthread_mutex_unlock(conf->m_forks[index]);
 	if (ret != 0)
-	{
-		printf("%ld: mutex can not (un)lock\n", id);
-	}
+		printf("%ld: lock, unlock error", id);
 	return (ret);
 }
 
@@ -121,10 +131,10 @@ int	take_forks(t_conf *conf, size_t id)
 	int	ret;
 
 	ret = fork_mutex(LOCK, RIGHT, id, conf);
-	printf("has taken a RIGHT fork\n");
+	output_actions(conf, id, "has taken a RIGHT fork");
 	ret = fork_mutex(LOCK, LEFT, id, conf);
-	printf("has taken a LEFT fork\n");
-
+	output_actions(conf, id, "has taken a LEFT fork");
+	
 	return (ret);
 }
 
@@ -133,26 +143,67 @@ int put_forks(t_conf *conf, int id)
 	int	ret;
 
 	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番どうするか検討
-	printf("has put a RIGHT fork\n");
+	output_actions(conf, id, "has put a RIGHT fork");
 	ret = fork_mutex(UNLOCK, LEFT, id, conf);
-	printf("has put a LEFT fork\n");
+	output_actions(conf, id, "has put a LEFT fork");
 	return (ret);
+}
+
+int	change_status(t_philo *philo, t_status status)
+{
+	//mutex 入れる
+	
+	philo->status = status;
+	return (0);
+}
+
+int	eating(t_philo *philo)
+{
+	int	ret;
+	
+	ret = take_forks(philo->conf, philo->id);
+	output_actions(philo->conf, philo->id, "is eating");
+	put_forks(philo->conf, philo->id);
+	change_status(philo, SLEEP);
+	return (ret);
+}
+
+int	sleeping(t_philo *philo)
+{
+	change_status(philo, THINK);
+	return (0);
+}
+
+int	thinking(t_philo *philo)
+{
+	
+	change_status(philo, EAT);
+		return (0);	
 }
 
 void	*philo_main(void *arg)
 {
 	t_philo	*philo;
-	struct timeval	tv;
+	//struct timeval	tv;
 
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 1)
 		usleep(200);
-	gettimeofday(&tv, NULL);
-	printf("%06d ", tv.tv_usec);
-	printf("%lu ", philo->id);
-	take_forks(philo->conf, philo->id);
-	put_forks(philo->conf, philo->id);
-	
+	//gettimeofday(&tv, NULL);
+	//printf("%d ", tv.tv_usec);
+	//printf("%lu ", philo->id);
+	change_status(philo, EAT);
+	while (philo->status != DEAD)
+	{
+		if (philo->status == EAT)
+			eating(philo);
+		else if (philo->status == SLEEP)
+			sleeping(philo);
+		else if (philo->status == THINK)
+			thinking(philo);
+		change_status(philo, DEAD);//deadのタイミングを追加する
+	}
+	//死後のハンドリング
 	return ("finished");
 }
 
