@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 15:15:01 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 16:12:45 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,33 +93,30 @@ void	init_philo(t_conf *conf)
 	}
 }
 
-double	time_to_ms(struct timeval tv)
+int64_t	gettime_ms(void)
 {
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
 	return ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000);
 }
 
 void	print_action(t_conf *conf, size_t id, char *action)
 {
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	printf("%.f %ld %s\n", time_to_ms(tv), id, action);//これで良いのか確認
+	printf("%lld %ld %s\n", gettime_ms(), id, action);//これで良いのか確認
 	(void)conf;
 }
 
 void	take_action(t_philo *philo, int limit_ms)
 {
-	struct timeval	tv;
 	double	start_ms;
 	double	current_ms;
 	double	diff;
 
-	gettimeofday(&tv, NULL);
-	start_ms = time_to_ms(tv);
+	start_ms = gettime_ms();
 	while (1)
 	{
-		gettimeofday(&tv, NULL);
-		current_ms = time_to_ms(tv);
+		current_ms = gettime_ms();
 		diff = current_ms - start_ms;
 		if (limit_ms <= diff || philo->status == DEAD)
 			break;
@@ -180,18 +177,15 @@ int	change_status(t_philo *philo, t_status status)
 int	eating(t_philo *philo)
 {
 	int	ret;
-	struct timeval	tv;
 	double	eat_fin_ms;	
 
-	gettimeofday(&tv, NULL);
-	philo->start_eat_ms = time_to_ms(tv);
+	philo->start_eat_ms = gettime_ms();
 	ret = take_forks(philo->conf, philo->id);
 	print_action(philo->conf, philo->id, "is eating");
 	take_action(philo, philo->conf->eat_ms);
 	philo->eat_count++;
 	put_forks(philo->conf, philo->id);
-	gettimeofday(&tv, NULL);
-	eat_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	eat_fin_ms = gettime_ms() - philo->start_eat_ms;
 	//printf("eat: %f, die: %zu\n", eat_fin_ms, philo->conf->die_ms);
 	if ((double)philo->conf->die_ms <= eat_fin_ms || philo->conf->dead_flag == true)
 	{
@@ -212,13 +206,11 @@ int	eating(t_philo *philo)
 
 int	sleeping(t_philo *philo)
 {
-	struct timeval	tv;
 	double	sleep_fin_ms;
 
 	print_action(philo->conf, philo->id, "is sleeping");
 	take_action(philo, philo->conf->sleep_ms);
-	gettimeofday(&tv, NULL);
-	sleep_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	sleep_fin_ms = gettime_ms() - philo->start_eat_ms;
 	if ((double)philo->conf->die_ms <= sleep_fin_ms || philo->conf->dead_flag == true)
 	{
 		change_status(philo, DEAD);
@@ -232,12 +224,10 @@ int	sleeping(t_philo *philo)
 
 int	thinking(t_philo *philo)
 {
-	struct timeval	tv;
 	double	think_fin_ms;
 	
 	print_action(philo->conf, philo->id, "is thinking");
-	gettimeofday(&tv, NULL);
-	think_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	think_fin_ms = gettime_ms() - philo->start_eat_ms;
 	if ((double)philo->conf->die_ms <= think_fin_ms || philo->conf->dead_flag == true)
 	{
 		change_status(philo, DEAD);
@@ -255,7 +245,7 @@ void	*philo_main(void *arg)
 
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 1)
-		usleep(200);
+		usleep(philo->conf->eat_ms * 0.9 * 1000);//eat*0.9にする！？
 	change_status(philo, EAT);
 	while (philo->status != DEAD && philo->status != FULL)
 	{
