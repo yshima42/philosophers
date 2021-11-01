@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 15:14:34 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 16:53:08 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ typedef struct s_conf
 	size_t			sleep_ms;
 	size_t			num_must_eat;
 	bool			dead_flag;
+	pthread_t		monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
 }	t_conf;
