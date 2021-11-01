@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 14:04:05 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/01 15:15:01 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,14 +183,28 @@ int	eating(t_philo *philo)
 	struct timeval	tv;
 	double	eat_fin_ms;	
 
+	gettimeofday(&tv, NULL);
+	philo->start_eat_ms = time_to_ms(tv);
 	ret = take_forks(philo->conf, philo->id);
 	print_action(philo->conf, philo->id, "is eating");
 	take_action(philo, philo->conf->eat_ms);
+	philo->eat_count++;
 	put_forks(philo->conf, philo->id);
 	gettimeofday(&tv, NULL);
-	eat_fin_ms = philo->start_eat_ms - time_to_ms(tv);
-	if ((double)philo->conf->die_ms <= eat_fin_ms)
+	eat_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	//printf("eat: %f, die: %zu\n", eat_fin_ms, philo->conf->die_ms);
+	if ((double)philo->conf->die_ms <= eat_fin_ms || philo->conf->dead_flag == true)
+	{
 		change_status(philo, DEAD);
+		philo->conf->dead_flag = true;
+		print_action(philo->conf, philo->id, "is dead while eating\n");
+		
+	}
+	else if (philo->eat_count == philo->conf->num_must_eat)
+	{
+		change_status(philo, FULL);
+		print_action(philo->conf, philo->id, "is full\n");
+	}
 	else
 		change_status(philo, SLEEP);
 	return (ret);
@@ -204,9 +218,13 @@ int	sleeping(t_philo *philo)
 	print_action(philo->conf, philo->id, "is sleeping");
 	take_action(philo, philo->conf->sleep_ms);
 	gettimeofday(&tv, NULL);
-	sleep_fin_ms = philo->start_eat_ms - time_to_ms(tv);
-	if ((double)philo->conf->die_ms <= sleep_fin_ms)
+	sleep_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	if ((double)philo->conf->die_ms <= sleep_fin_ms || philo->conf->dead_flag == true)
+	{
 		change_status(philo, DEAD);
+		philo->conf->dead_flag = true;
+		print_action(philo->conf, philo->id, "is dead while sleeping\n");
+	}
 	else
 		change_status(philo, THINK);
 	return (0);
@@ -219,9 +237,13 @@ int	thinking(t_philo *philo)
 	
 	print_action(philo->conf, philo->id, "is thinking");
 	gettimeofday(&tv, NULL);
-	think_fin_ms = philo->start_eat_ms - time_to_ms(tv);
-	if ((double)philo->conf->die_ms <= think_fin_ms)
+	think_fin_ms = time_to_ms(tv) - philo->start_eat_ms;
+	if ((double)philo->conf->die_ms <= think_fin_ms || philo->conf->dead_flag == true)
+	{
 		change_status(philo, DEAD);
+		philo->conf->dead_flag = true;
+		print_action(philo->conf, philo->id, "is dead while thinking\n");
+	}
 	else
 		change_status(philo, EAT);
 	return (0);
@@ -230,15 +252,12 @@ int	thinking(t_philo *philo)
 void	*philo_main(void *arg)
 {
 	t_philo	*philo;
-	struct timeval	tv;
 
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 1)
 		usleep(200);
 	change_status(philo, EAT);
-	gettimeofday(&tv, NULL);
-	philo->start_eat_ms = time_to_ms(tv);
-	while (philo->status != DEAD)
+	while (philo->status != DEAD && philo->status != FULL)
 	{
 		if (philo->status == EAT)
 			eating(philo);
@@ -247,8 +266,6 @@ void	*philo_main(void *arg)
 		else if (philo->status == THINK)
 			thinking(philo);
 	}
-	printf("dead\n");
-	//死後のハンドリング
 	return ("finished");
 }
 
