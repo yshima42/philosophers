@@ -6,111 +6,26 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 21:41:16 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/02 18:04:36 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
 
 //eixtを全部消す
-
-void	args_check(int ac, char **av)
-{
-	if ((ac != 5) && (ac != 6))
-	{
-		printf("arg error\n");
-		exit(EXIT_FAILURE);
-	}
-	(void)av;
-}
-
-void	*my_malloc(size_t size)
-{
-	void	*ptr;
-	ptr = malloc(size);
-	if (!ptr)
-	{
-		ft_putstr_fd("malloc error\n", 2);
-		exit(EXIT_FAILURE);
-	}
-	return (ptr);
-}
-
-t_conf	*init_conf(int ac, char **av)
-{
-	t_conf	*conf;
-	
-	conf = my_malloc(sizeof(t_conf));//freeする
-	conf->num_philos = ft_atoi(av[1]);
-	conf->die_ms = ft_atoi(av[2]);
-	conf->eat_ms = ft_atoi(av[3]);
-	conf->sleep_ms = ft_atoi(av[4]);	
-	if (ac == 6)
-		conf->num_must_eat = ft_atoi(av[5]);
-	return (conf);
-}
-
-void	print_conf(t_conf *conf)
-{
-	printf("[print_conf]\n");
-	printf("conf->num_philos: %lu\n", conf->num_philos);
-	printf("conf->die_ms: %lu\n", conf->die_ms);
-	printf("conf->eat_ms: %lu\n", conf->eat_ms);
-	printf("conf->sleap_ms: %lu\n", conf->sleep_ms);
-	printf("conf->num_must_eat: %lu\n", conf->num_must_eat);
-	printf("\n");
-}
-
-void	print_philo(t_philo **philo)
-{
-	size_t	i;
-	
-	i = -1;
-	while (++i < philo[1]->conf->num_philos)
-	{
-		printf("[print_philo]\n");
-		printf("id: %lu\n", philo[i]->id);
-		printf("status: %u\n", philo[i]->status);
-		printf("\n");
-		print_conf(philo[i]->conf);
-	}
-}
-
-void	init_philo(t_conf *conf)
-{
-	size_t	i;
-
-	conf->philo = my_malloc(sizeof(t_philo *) * conf->num_philos);//freeする
-	i = -1;
-	while (++i < conf->num_philos)
-	{
-		conf->philo[i] = my_malloc(sizeof(t_philo));//freeする
-		conf->philo[i]->id = i + 1;
-		conf->philo[i]->eat_count = 0;
-		conf->philo[i]->status = INVALID;
-		conf->philo[i]->conf = conf;
-	}
-}
-
-int64_t	gettime_ms(void)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000);
-}
+// philo1人の時に対処。argで弾く
 
 void	print_action(t_conf *conf, size_t id, char *action)
 {
-	printf("%lld %ld %s\n", gettime_ms(), id, action);//これで良いのか確認
+	printf("%ld %ld %s\n", gettime_ms(), id, action);//これで良いのか
 	(void)conf;
 }
 
-void	take_action(t_philo *philo, int limit_ms)
+void	take_action(t_philo *philo, size_t limit_ms)
 {
-	double	start_ms;
-	double	current_ms;
-	double	diff;
+	size_t	start_ms;
+	size_t	current_ms;
+	size_t	diff;
 
 	start_ms = gettime_ms();
 	while (1)
@@ -149,9 +64,13 @@ int	take_forks(t_conf *conf, size_t id)
 	int	ret;
 
 	ret = fork_mutex(LOCK, RIGHT, id, conf);
-	print_action(conf, id, "has taken a RIGHT fork");
+	if (conf->philo[id - 1]->status == DEAD)
+		return (0);
+	print_action(conf, id, "has taken a fork");
 	ret = fork_mutex(LOCK, LEFT, id, conf);
-	print_action(conf, id, "has taken a LEFT fork");
+	if (conf->philo[id - 1]->status == DEAD)
+		return (0);
+	print_action(conf, id, "has taken a fork");
 	return (ret);
 }
 
@@ -159,62 +78,77 @@ int put_forks(t_conf *conf, int id)
 {
 	int	ret;
 
-	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番どうするか検討
-	print_action(conf, id, "has put a RIGHT fork");//消す
+	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番検討
+	if (conf->philo[id - 1]->status == DEAD)
+		return (0);
+	//print_action(conf, id, "has put a RIGHT fork");//消す
 	ret = fork_mutex(UNLOCK, LEFT, id, conf);
-	print_action(conf, id, "has put a LEFT fork");//消す
+	if (conf->philo[id - 1]->status == DEAD)
+		return (0);
+	//print_action(conf, id, "has put a LEFT fork");//消す
 	return (ret);
 }
 
 int	change_status(t_philo *philo, t_status status)
 {
+	if (philo->status == DEAD)
+		return(0);
+	while (0 != pthread_mutex_lock(&philo->m_status))
+	{
+		printf("%lu: mutex can not lock 4.\n", philo->id);
+	}
 	philo->status = status;
+	
+	if (philo->status == SLEEP)
+	{
+		//printf("time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
+		print_action(philo->conf, philo->id, "is sleeping");
+	}
+	else if (philo->status == THINK)
+	{
+		//printf("time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
+		print_action(philo->conf, philo->id, "is thinking");
+	}
+	else if (philo->status == DEAD)
+	{
+		//printf("died time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
+		print_action(philo->conf, philo->id, "is dead");
+	}
+	while (0 != pthread_mutex_unlock(&philo->m_status))
+	{
+		printf("%lu: mutex can not unlock 4.\n", philo->id);
+	}
 	return (0);
 }
 
 int	eating(t_philo *philo)
 {
 	int	ret;
-	size_t	eat_fin_ms;	
-
+	
+	if (philo->status == DEAD)
+		return (0);
 	ret = take_forks(philo->conf, philo->id);
 	print_action(philo->conf, philo->id, "is eating");
 	philo->start_eat_ms = gettime_ms();
+	//printf("before: time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
 	take_action(philo, philo->conf->eat_ms);
-	philo->eat_count++;
-	eat_fin_ms = gettime_ms() - philo->start_eat_ms;
-	//printf("id: %ld, eat: %f, die: %zu\n", philo->id, eat_fin_ms, philo->conf->die_ms);
-	if (philo->conf->die_ms <= eat_fin_ms)
-	{
-		change_status(philo, DEAD);
-		print_action(philo->conf, philo->id, "is dead while eating\n");
-	}
-	else if (philo->eat_count == philo->conf->num_must_eat)
-	{
-		change_status(philo, FULL);
-		print_action(philo->conf, philo->id, "is full\n");
-	}
+	//printf("after: time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
+	/* philo->eat_count++;//検討する
+	if (philo->eat_count == philo->conf->num_must_eat)
+		philo->flag_full = true; */
+	put_forks(philo->conf, philo->id);
+	if (philo->status == DEAD)
+		return (ret);
 	else
-	{
-		put_forks(philo->conf, philo->id);
 		change_status(philo, SLEEP);
-	}
 	return (ret);
 }
-// philo1人の時に対処。
+
 int	sleeping(t_philo *philo)
 {
-	double	sleep_fin_ms;
-
-	print_action(philo->conf, philo->id, "is sleeping");
 	take_action(philo, philo->conf->sleep_ms);
-	sleep_fin_ms = gettime_ms() - philo->start_eat_ms;
-	//printf("id: %ld, sleep: %f, die: %zu\n", philo->id, sleep_fin_ms, philo->conf->die_ms);
-	if (philo->conf->die_ms <= sleep_fin_ms)
-	{
-		change_status(philo, DEAD);	
-		print_action(philo->conf, philo->id, "is dead while sleeping\n");
-	}
+	if (philo->status == DEAD)
+		return (0);
 	else
 		change_status(philo, THINK);
 	return (0);
@@ -222,17 +156,11 @@ int	sleeping(t_philo *philo)
 
 int	thinking(t_philo *philo)
 {
-	double	think_fin_ms;
-	
-	print_action(philo->conf, philo->id, "is thinking");
-	think_fin_ms = gettime_ms() - philo->start_eat_ms;
-	if ((double)philo->conf->die_ms <= think_fin_ms)
-	{
-		change_status(philo, DEAD);
-		print_action(philo->conf, philo->id, "is dead while thinking\n");
-	}
+	if (philo->status == DEAD)
+		return (0);
 	else
 		change_status(philo, EAT);
+	usleep(500);//要検討
 	return (0);
 }
 
@@ -243,30 +171,18 @@ void	*philo_main(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->id % 2 == 0)
 		usleep(philo->conf->eat_ms * 0.9 * 1000);
+	philo->start_eat_ms = gettime_ms();
 	change_status(philo, EAT);
-	while (philo->status != DEAD && philo->status != FULL)
+	while (philo->status != DEAD)
 	{
 		if (philo->status == EAT)
 			eating(philo);
-		else if (philo->status == SLEEP)
+		if (philo->status == SLEEP)
 			sleeping(philo);
-		else if (philo->status == THINK)
+		if (philo->status == THINK)
 			thinking(philo);
 	}
 	return ("finished");
-}
-
-void	init_forks(t_conf *conf)
-{
-	size_t	i;
-
-	conf->m_forks = my_malloc(sizeof(pthread_mutex_t *) * conf->num_philos);//freeする
-	i = -1;
-	while (++i < conf->num_philos)
-	{
-		conf->m_forks[i] = my_malloc(sizeof(pthread_mutex_t));//freeする
-		pthread_mutex_init(conf->m_forks[i], NULL);
-	}
 }
 
 int	philo_create(t_conf *conf)
@@ -283,6 +199,21 @@ int	philo_create(t_conf *conf)
 		}
 	}
 	return (0);
+}
+
+void	destroy_forks(t_conf *conf)
+{
+	size_t			i;
+
+	i = 0;
+	while (i < conf->num_philos)
+	{
+		pthread_mutex_destroy(conf->m_forks[i]);
+		free(conf->m_forks[i]);
+		i++;
+	}
+	free(conf->m_forks);
+	conf->m_forks = NULL;
 }
 
 int	philo_join(t_conf *conf)
@@ -303,26 +234,56 @@ int	philo_join(t_conf *conf)
 	return (0);
 }
 
-bool	dead_check(t_conf *conf)
+bool	kill_philo(t_conf *conf)
 {
 	size_t	i;
 	i = -1;
 	while (++i < conf->num_philos)
 	{
-		printf("from checker: %ld\n",conf->philo[i]->id);
+		if (conf->philo[i]->status == INVALID)
+			return (0);
+		if (gettime_ms() - conf->philo[i]->start_eat_ms >= conf->die_ms)
+		{
+			change_status(conf->philo[i], DEAD);
+			return (1);
+		}
 	}
 	return (0);
+}
+
+void	finish_threads(t_conf *conf)
+{
+	size_t	i;
+
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		printf("change status!!!!\n");
+		if (conf->philo[i]->status != DEAD)
+		{
+			change_status(conf->philo[i], DEAD);
+		}
+	}
 }
 
 bool	full_check(t_conf *conf)
 {
 	size_t	i;
+	size_t	n_full_philo;
+
+	n_full_philo = 0;
 	i = -1;
 	while (++i < conf->num_philos)
 	{
-		printf("from full: %ld\n",conf->philo[i]->id);
+		if (conf->philo[i]->flag_full)
+		{
+			n_full_philo++;
+		}
 	}
-	return (0);
+	if (n_full_philo == conf->num_must_eat)
+		return (1);
+	else
+		return (0);
 }
 
 void	*monitor_main(void *arg)
@@ -332,13 +293,14 @@ void	*monitor_main(void *arg)
 	conf = (t_conf *)arg;
 	while (1)
 	{
-		if (dead_check(conf) || full_check(conf))
+		if (kill_philo(conf)/*  || full_check(conf) */)
 			break;
 	}
-	return ("monitor finished");
+	finish_threads(conf);
+	return ("finish monitor");
 }
 
-int	monitor_run(t_conf *conf)
+int	run_monitor(t_conf *conf)
 {
 	if (pthread_create(&conf->monitor, NULL, monitor_main, (void *)conf) != 0)
 	{
@@ -362,8 +324,9 @@ int	main(int ac, char **av)
 	init_philo(conf);
 	init_forks(conf);
 	philo_create(conf);
-	monitor_run(conf);
+	run_monitor(conf);
 	philo_join(conf);
-	
+	destroy_forks(conf);
+	//pthread_mutex_destroy(&conf->philo[i]->m_status);
 	printf("end of file\n");
 }

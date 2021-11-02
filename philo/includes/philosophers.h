@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/01 21:22:23 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/02 16:14:02 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ typedef enum e_status
 	SLEEP,
 	THINK,
 	DEAD,
-	FULL,
 }	t_status;
 
 typedef struct s_conf	t_conf;
@@ -46,8 +45,10 @@ typedef struct s_philo
 {
 	size_t			id;
 	size_t			eat_count;
-	double			start_eat_ms;
+	size_t			start_eat_ms;
 	t_status		status;
+	pthread_mutex_t	m_status;
+	bool			flag_full;
 	pthread_t		thread;
 	t_conf			*conf;
 }	t_philo;
@@ -72,5 +73,18 @@ void	ft_putstr_fd(char *s, int fd);
 
 //ft_strlen.c
 size_t	ft_strlen(const char *s);
+
+//args_check.c
+void	args_check(int ac, char **av);
+
+//utils.c
+void	*my_malloc(size_t size);
+size_t	gettime_ms(void);
+
+//init.c
+t_conf	*init_conf(int ac, char **av);
+void	init_philo(t_conf *conf);
+void	init_forks(t_conf *conf);
+
 
 #endif
