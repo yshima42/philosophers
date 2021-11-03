@@ -28,6 +28,7 @@ void	init_philo(t_conf *conf)
 		conf->philo[i]->start_eat_ms = 0;
 		conf->philo[i]->status = INVALID;
 		conf->philo[i]->flag_full = false;
+		conf->philo[i]->flag_dead = false;
 		pthread_mutex_init(&conf->philo[i]->m_status, NULL);
 		conf->philo[i]->conf = conf;
 	}

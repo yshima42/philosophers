@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/02 16:14:02 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/03 09:36:06 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,14 @@ typedef enum e_status
 	SLEEP,
 	THINK,
 	DEAD,
+	FULL,
 }	t_status;
+
+typedef enum e_condition
+{
+	ALIVE,
+
+}	t_condition;
 
 typedef struct s_conf	t_conf;
 
@@ -48,7 +55,7 @@ typedef struct s_philo
 	size_t			start_eat_ms;
 	t_status		status;
 	pthread_mutex_t	m_status;
-	bool			flag_full;
+	t_condition		condition;
 	pthread_t		thread;
 	t_conf			*conf;
 }	t_philo;
