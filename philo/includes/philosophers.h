@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/04 10:50:10 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/04 15:04:49 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,19 +30,29 @@
 # define RIGHT	1
 # define LEFT	0
 
+# define END			"\033[0m"
+# define BLACK			"\033[30m"
+# define RED			"\033[31m"
+# define GREEN			"\033[32m"
+# define YELLOW			"\033[33m"
+# define BLUE			"\033[34m"
+# define MAGENTA		"\033[35m"
+# define CYAN			"\033[36m"
+
 typedef enum e_status
 {
 	INVALID,
 	EAT,
 	SLEEP,
 	THINK,
+	DEAD,
+	FULL,
 }	t_status;
 
 typedef enum e_condition
 {
 	ALIVE,
-	DEAD,
-	FULL,
+	
 }	t_condition;
 
 typedef struct s_conf	t_conf;
@@ -96,11 +106,22 @@ void	init_forks(t_conf *conf);
 //fork.c
 int put_forks(t_conf *conf, int id);
 int	take_forks(t_conf *conf, size_t id);
+void	destroy_forks(t_conf *conf);
 
 
 //main.c
 void	print_action(t_conf *conf, size_t id, char *action);
-bool	dead_check(t_conf *conf);
-int	change_condition(t_philo *philo, t_condition condition);
+bool	is_dead(t_conf *conf);
+int	dead_check(t_philo *philo);
+
+//philo.c
+int	philo_create(t_conf *conf);
+int	philo_join(t_conf *conf);
+
+//action.c
+int	eating(t_philo *philo);
+int	sleeping(t_philo *philo);
+int	thinking(t_philo *philo);
+int	change_status(t_philo *philo, t_status status);
 
 #endif

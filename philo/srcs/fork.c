@@ -6,11 +6,26 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/04 10:19:15 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/04 10:51:13 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/04 14:58:43 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
+
+void	destroy_forks(t_conf *conf)
+{
+	size_t			i;
+
+	i = 0;
+	while (i < conf->num_philos)
+	{
+		pthread_mutex_destroy(conf->m_forks[i]);
+		free(conf->m_forks[i]);
+		i++;
+	}
+	free(conf->m_forks);
+	conf->m_forks = NULL;
+}
 
 int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
 {
@@ -39,22 +54,22 @@ int	take_forks(t_conf *conf, size_t id)
 	int	ret;
 
 	ret = fork_mutex(LOCK, RIGHT, id, conf);
-	if (dead_check(conf))
+	if (is_dead(conf))
 	{
 		put_forks(conf, conf->philo[id - 1]->id);
-		change_condition(conf->philo[id - 1], conf->philo[id - 1]->condition);
-		return (ret);
+		change_status(conf->philo[id - 1], DEAD);
+		return (1);
 	}
-	if (conf->philo[id - 1]->condition == DEAD)
-		return (0);
+	if (conf->philo[id - 1]->status == DEAD)
+		return (1);
 	else
-		print_action(conf, id, "has taken a fork");
+		print_action(conf, id, CYAN"has taken a fork"END);
 	ret = fork_mutex(LOCK, LEFT, id, conf);
-	if (conf->philo[id - 1]->condition == DEAD)
-		return (0);
+	if (conf->philo[id - 1]->status == DEAD)
+		return (1);
 	else
-		print_action(conf, id, "has taken a fork");
-	return (ret);
+		print_action(conf, id, CYAN"has taken a fork"END);
+	return (0);
 }
 
 int put_forks(t_conf *conf, int id)
@@ -62,12 +77,12 @@ int put_forks(t_conf *conf, int id)
 	int	ret;
 
 	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番検討
-	if (conf->philo[id - 1]->condition == DEAD)
-		return (0);
+	if (conf->philo[id - 1]->status == DEAD)
+		return (1);
 	//print_action(conf, id, "has put a RIGHT fork");//消す
 	ret = fork_mutex(UNLOCK, LEFT, id, conf);
-	if (conf->philo[id - 1]->condition == DEAD)
-		return (0);
+	if (conf->philo[id - 1]->status == DEAD)
+		return (1);
 	//print_action(conf, id, "has put a LEFT fork");//消す
-	return (ret);
+	return (0);
 }
