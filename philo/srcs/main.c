@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/03 09:42:47 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/04 10:47:41 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,10 @@
 
 void	print_action(t_conf *conf, size_t id, char *action)
 {
+	//ここにmutexつける
+	pthread_mutex_lock(&conf->m_print);
 	printf("%ld %ld %s\n", gettime_ms(), id, action);//これで良いのか
-	(void)conf;
+	pthread_mutex_unlock(&conf->m_print);
 }
 
 void	take_action(t_philo *philo, size_t limit_ms)
@@ -32,89 +34,70 @@ void	take_action(t_philo *philo, size_t limit_ms)
 	{
 		current_ms = gettime_ms();
 		diff = current_ms - start_ms;
-		if (limit_ms <= diff || philo->status == DEAD)
+		if (limit_ms <= diff || philo->condition == DEAD)
 			break ;//usleepするか検討
 	}
 }
 
-int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
-{
-	int				ret;
-	int				index;
-
-	if (is_right)
-		index = id - 1;
-	else
-	{
-		index = id;
-		if (id == conf->num_philos)
-			index = 0;
-	}
-	if (is_lock)
-		ret = pthread_mutex_lock(conf->m_forks[index]);
-	else
-		ret = pthread_mutex_unlock(conf->m_forks[index]);
-	if (ret != 0)
-		printf("%ld: lock, unlock error", id);
-	return (ret);
-}
-
-int	take_forks(t_conf *conf, size_t id)
-{
-	int	ret;
-
-	ret = fork_mutex(LOCK, RIGHT, id, conf);
-	if (conf->philo[id - 1]->status == DEAD)
-		return (0);
-	else
-		print_action(conf, id, "has taken a fork");
-	ret = fork_mutex(LOCK, LEFT, id, conf);
-	if (conf->philo[id - 1]->status == DEAD)
-		return (0);
-	else
-		print_action(conf, id, "has taken a fork");
-	return (ret);
-}
-
-int put_forks(t_conf *conf, int id)
-{
-	int	ret;
-
-	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番検討
-	if (conf->philo[id - 1]->status == DEAD)
-		return (0);
-	//print_action(conf, id, "has put a RIGHT fork");//消す
-	ret = fork_mutex(UNLOCK, LEFT, id, conf);
-	if (conf->philo[id - 1]->status == DEAD)
-		return (0);
-	//print_action(conf, id, "has put a LEFT fork");//消す
-	return (ret);
-}
 
 int	change_status(t_philo *philo, t_status status)
 {
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return(0);
-	if (pthread_mutex_lock(&philo->m_status) != 0)
+	while (pthread_mutex_lock(&philo->m_status) != 0)
 		printf("%lu: mutex can not lock\n", philo->id);
 	philo->status = status;	
-	if (philo->status == SLEEP && philo->status != DEAD)
+	if (philo->status == SLEEP && philo->condition != DEAD)
 	{
 		//printf("time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
 		print_action(philo->conf, philo->id, "is sleeping");
 	}
-	else if (philo->status == THINK && philo->status != DEAD)
+	else if (philo->status == THINK && philo->condition != DEAD)
 	{
 		print_action(philo->conf, philo->id, "is thinking");
 	}
-	else if (philo->status == DEAD)
+	else if (philo->condition == DEAD)
 	{
-		philo->status = DEAD;
-		//usleep(100);//要検討
+		philo->condition = DEAD;
 		print_action(philo->conf, philo->id, "is dead");
+	}
+	while (pthread_mutex_unlock(&philo->m_status) != 0)
+		printf("%lu: mutex can not unlock\n", philo->id);
+	return (0);
+}
+
+int	change_condition(t_philo *philo, t_condition condition)
+{
+	if (pthread_mutex_lock(&philo->m_status) != 0)
+		printf("%lu: mutex can not lock\n", philo->id);
+	if (condition == DEAD)
+	{
+		philo->condition = DEAD;
+		print_action(philo->conf, philo->id, "is dead");
+	}
+	if (condition == FULL)
+	{
+		philo->condition = FULL;
+		print_action(philo->conf, philo->id, "is full");
 	}
 	if (pthread_mutex_unlock(&philo->m_status) != 0)
 		printf("%lu: mutex can not unlock\n", philo->id);
+	return (0);
+}
+
+bool	dead_check(t_conf *conf)
+{
+	size_t	i;
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		if (conf->philo[i]->status == INVALID)
+			return (0);
+		if (gettime_ms() - conf->philo[i]->start_eat_ms >= conf->die_ms)
+		{
+			return (1);
+		}
+	}
 	return (0);
 }
 
@@ -123,8 +106,12 @@ int	eating(t_philo *philo)
 	int	ret;
 	
 	ret = take_forks(philo->conf, philo->id);
-	if (philo->status == DEAD)
-		return (0);
+	if (dead_check(philo->conf))
+	{
+		put_forks(philo->conf, philo->id);
+		change_condition(philo, philo->condition);
+		return (ret);
+	}
 	else
 		print_action(philo->conf, philo->id, "is eating");
 	philo->start_eat_ms = gettime_ms();
@@ -133,9 +120,9 @@ int	eating(t_philo *philo)
 	//printf("after: time: %lu, die_ms: %lu\n", gettime_ms() - philo->start_eat_ms, philo->conf->die_ms);
 	philo->eat_count++;
 	if (philo->eat_count == philo->conf->num_must_eat)
-		philo->status = FULL;
+		philo->condition = FULL;
 	put_forks(philo->conf, philo->id);
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return (ret);
 	else
 		change_status(philo, SLEEP);
@@ -145,7 +132,7 @@ int	eating(t_philo *philo)
 int	sleeping(t_philo *philo)
 {
 	take_action(philo, philo->conf->sleep_ms);
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return (0);
 	else
 		change_status(philo, THINK);
@@ -154,7 +141,7 @@ int	sleeping(t_philo *philo)
 
 int	thinking(t_philo *philo)
 {
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return (0);
 	else
 		change_status(philo, EAT);
@@ -171,7 +158,7 @@ void	*philo_main(void *arg)
 		usleep(philo->conf->eat_ms * 0.9 * 1000);
 	philo->start_eat_ms = gettime_ms();
 	change_status(philo, EAT);
-	while (philo->status != DEAD && philo->condition != FULL)
+	while (philo->condition != DEAD && philo->condition != FULL)
 	{
 		if (philo->status == EAT)
 			eating(philo);
@@ -232,13 +219,24 @@ int	philo_join(t_conf *conf)
 	return (0);
 }
 
-int	change_condition(t_philo *philo, t_status status)
+
+
+int	change_condition_no_print(t_philo *philo, t_condition condition)
 {
-	if (status == FULL)
+	if (pthread_mutex_lock(&philo->m_status) != 0)
+		printf("%lu: mutex can not lock\n", philo->id);
+	if (condition == DEAD)
 	{
-		philo->status = FULL;
-		print_action(philo->conf, philo->id, "is full");
+		philo->condition = DEAD;
+		//print_action(philo->conf, philo->id, "is dead");
 	}
+	if (condition == FULL)
+	{
+		philo->condition = FULL;
+		//print_action(philo->conf, philo->id, "is full");
+	}
+	if (pthread_mutex_unlock(&philo->m_status) != 0)
+		printf("%lu: mutex can not unlock\n", philo->id);
 	return (0);
 }
 
@@ -249,28 +247,11 @@ void	finish_threads(t_conf *conf)
 	i = -1;
 	while (++i < conf->num_philos)
 	{
-		if (conf->philo[i]->status != DEAD)
+		if (conf->philo[i]->condition != DEAD)
 		{
-			change_status(conf->philo[i], DEAD);
+			change_condition_no_print(conf->philo[i], DEAD);
 		}
 	}
-}
-
-bool	dead_check(t_conf *conf)
-{
-	size_t	i;
-	i = -1;
-	while (++i < conf->num_philos)
-	{
-		if (conf->philo[i]->status == INVALID)
-			return (0);
-		if (gettime_ms() - conf->philo[i]->start_eat_ms >= conf->die_ms)
-		{
-			change_status(conf->philo[i], DEAD);
-			return (1);
-		}
-	}
-	return (0);
 }
 
 bool	full_check(t_conf *conf)
@@ -334,7 +315,7 @@ int	main(int ac, char **av)
 	init_philo(conf);
 	init_forks(conf);
 	philo_create(conf);
-	run_monitor(conf);
+	//run_monitor(conf);
 	philo_join(conf);
 	destroy_forks(conf);
 	//pthread_mutex_destroy(&conf->philo[i]->m_status);

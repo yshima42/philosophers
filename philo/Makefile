@@ -4,7 +4,7 @@ NAME			= 	philo
 INCLUDES		= 	includes
 SRCS_PATH		= 	./srcs/
 SRCS_FILES    	= 	main.c ft_atoi.c ft_putstr_fd.c ft_strlen.c args_check.c utils.c init.c \
-					atodekesu.c
+					atodekesu.c fork.c
 SRCS			= 	$(addprefix $(SRCS_PATH), $(SRCS_FILES))
 SRCS_OBJS		= 	$(SRCS:.c=.o)
 

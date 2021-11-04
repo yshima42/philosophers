@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/03 09:36:06 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/04 10:50:10 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,13 @@ typedef enum e_status
 	EAT,
 	SLEEP,
 	THINK,
-	DEAD,
-	FULL,
 }	t_status;
 
 typedef enum e_condition
 {
 	ALIVE,
-
+	DEAD,
+	FULL,
 }	t_condition;
 
 typedef struct s_conf	t_conf;
@@ -70,6 +69,7 @@ typedef struct s_conf
 	pthread_t		monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
+	pthread_mutex_t	m_print;
 }	t_conf;
 
 //ft_atoi.c
@@ -93,5 +93,14 @@ t_conf	*init_conf(int ac, char **av);
 void	init_philo(t_conf *conf);
 void	init_forks(t_conf *conf);
 
+//fork.c
+int put_forks(t_conf *conf, int id);
+int	take_forks(t_conf *conf, size_t id);
+
+
+//main.c
+void	print_action(t_conf *conf, size_t id, char *action);
+bool	dead_check(t_conf *conf);
+int	change_condition(t_philo *philo, t_condition condition);
 
 #endif
