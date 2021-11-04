@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/04 10:19:15 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/04 14:58:43 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/04 15:18:13 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,8 @@ int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
 
 int	take_forks(t_conf *conf, size_t id)
 {
-	int	ret;
-
-	ret = fork_mutex(LOCK, RIGHT, id, conf);
+	if (fork_mutex(LOCK, RIGHT, id, conf) != 0)
+		return (-1);
 	if (is_dead(conf))
 	{
 		put_forks(conf, conf->philo[id - 1]->id);
@@ -64,7 +63,8 @@ int	take_forks(t_conf *conf, size_t id)
 		return (1);
 	else
 		print_action(conf, id, CYAN"has taken a fork"END);
-	ret = fork_mutex(LOCK, LEFT, id, conf);
+	if (fork_mutex(LOCK, LEFT, id, conf) != 0)
+		return (-1);
 	if (conf->philo[id - 1]->status == DEAD)
 		return (1);
 	else
@@ -79,10 +79,8 @@ int put_forks(t_conf *conf, int id)
 	ret = fork_mutex(UNLOCK, RIGHT, id, conf);//ここの順番検討
 	if (conf->philo[id - 1]->status == DEAD)
 		return (1);
-	//print_action(conf, id, "has put a RIGHT fork");//消す
 	ret = fork_mutex(UNLOCK, LEFT, id, conf);
 	if (conf->philo[id - 1]->status == DEAD)
 		return (1);
-	//print_action(conf, id, "has put a LEFT fork");//消す
 	return (0);
 }

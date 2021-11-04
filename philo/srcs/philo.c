@@ -19,15 +19,6 @@ void	*philo_main(void *arg)
 		|| dead_check(philo))
 			break;
 	}
-	/* while (philo->status != DEAD && philo->status != FULL)
-	{
-		if (philo->status == EAT)
-			eating(philo);
-		if (philo->status == SLEEP)
-			sleeping(philo);
-		if (philo->status == THINK)
-			thinking(philo);
-	} */
 	return ("finished");
 }
 
