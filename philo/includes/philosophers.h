@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/04 15:04:49 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/05 16:16:24 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,13 @@ typedef enum e_status
 	EAT,
 	SLEEP,
 	THINK,
-	DEAD,
-	FULL,
 }	t_status;
 
 typedef enum e_condition
 {
 	ALIVE,
-	
+	DEAD,
+	FULL,
 }	t_condition;
 
 typedef struct s_conf	t_conf;
@@ -76,7 +75,7 @@ typedef struct s_conf
 	size_t			eat_ms;
 	size_t			sleep_ms;
 	size_t			num_must_eat;
-	pthread_t		monitor;
+	bool			someone_is_dead;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
 	pthread_mutex_t	m_print;
@@ -111,7 +110,7 @@ void	destroy_forks(t_conf *conf);
 
 //main.c
 void	print_action(t_conf *conf, size_t id, char *action);
-bool	is_dead(t_conf *conf);
+bool	is_dead(t_conf *conf, size_t id);
 int	dead_check(t_philo *philo);
 
 //philo.c
@@ -122,6 +121,7 @@ int	philo_join(t_conf *conf);
 int	eating(t_philo *philo);
 int	sleeping(t_philo *philo);
 int	thinking(t_philo *philo);
+bool	take_action(t_philo *philo, size_t limit_ms);
 int	change_status(t_philo *philo, t_status status);
 
 #endif

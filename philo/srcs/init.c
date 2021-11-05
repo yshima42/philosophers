@@ -9,6 +9,7 @@ t_conf	*init_conf(int ac, char **av)
 	conf->die_ms = ft_atoi(av[2]);
 	conf->eat_ms = ft_atoi(av[3]);
 	conf->sleep_ms = ft_atoi(av[4]);
+	conf->someone_is_dead = false;
 	pthread_mutex_init(&conf->m_print, NULL);
 	if (ac == 6)
 		conf->num_must_eat = ft_atoi(av[5]);

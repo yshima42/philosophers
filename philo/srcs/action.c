@@ -7,7 +7,7 @@ void	print_action(t_conf *conf, size_t id, char *action)
 	pthread_mutex_unlock(&conf->m_print);
 }
 
-void	take_action(t_philo *philo, size_t limit_ms)
+bool	take_action(t_philo *philo, size_t limit_ms)
 {
 	size_t	start_ms;
 	size_t	current_ms;
@@ -18,9 +18,12 @@ void	take_action(t_philo *philo, size_t limit_ms)
 	{
 		current_ms = gettime_ms();
 		diff = current_ms - start_ms;
-		if (limit_ms <= diff || philo->status == DEAD)
-			break ;//usleepするか検討
-	}
+		if (limit_ms <= diff)
+			break ;
+		if (dead_check(philo))
+			return (true);
+	}	
+	return (false);
 }
 
 int	change_status(t_philo *philo, t_status status)
@@ -35,14 +38,16 @@ int	change_status(t_philo *philo, t_status status)
 
 int	eating(t_philo *philo)
 {
-	dead_check(philo);
+	if (philo->conf->someone_is_dead)
+		return (1);
 	print_action(philo->conf, philo->id, GREEN"is eating"END);
 	philo->start_eat_ms = gettime_ms();
+	printf("id: %zu, philo->start_eat_ms: %zu\n", philo->id, philo->start_eat_ms);
 	take_action(philo, philo->conf->eat_ms);
 	philo->eat_count++;
 	if (philo->eat_count == philo->conf->num_must_eat)
-		philo->status = FULL;
-	if (philo->status == DEAD)
+		philo->condition = FULL;
+	if (philo->condition == DEAD)
 		return (1);
 	else
 		change_status(philo, SLEEP);
@@ -51,9 +56,11 @@ int	eating(t_philo *philo)
 
 int	sleeping(t_philo *philo)
 {
+	if (philo->conf->someone_is_dead)
+		return (1);
 	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
 	take_action(philo, philo->conf->sleep_ms);
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return (1);
 	else
 		change_status(philo, THINK);
@@ -62,8 +69,10 @@ int	sleeping(t_philo *philo)
 
 int	thinking(t_philo *philo)
 {
+	if (philo->conf->someone_is_dead)
+		return (1);
 	print_action(philo->conf, philo->id, YELLOW"is thinking"END);
-	if (philo->status == DEAD)
+	if (philo->condition == DEAD)
 		return (1);
 	else
 		change_status(philo, EAT);

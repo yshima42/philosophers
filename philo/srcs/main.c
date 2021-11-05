@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/04 15:14:55 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/05 16:17:42 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,53 +15,37 @@
 //eixtを全部消す
 // philo1人の時に対処。argで弾く
 
-bool	is_dead(t_conf *conf)
+int	change_condition(t_philo *philo, t_condition condition)
 {
-	size_t	i;
-	i = -1;
-	while (++i < conf->num_philos)
-	{
-		if (conf->philo[i]->status == INVALID)
-			return (false);
-		if (gettime_ms() - conf->philo[i]->start_eat_ms >= conf->die_ms)
-			return (true);
-	}
-	return (false);
+	if (pthread_mutex_lock(&philo->m_status) != 0)
+		printf("%lu: mutex can not lock\n", philo->id);
+	philo->condition = condition;
+	philo->conf->someone_is_dead = true;
+	if (pthread_mutex_unlock(&philo->m_status) != 0)
+		printf("%lu: mutex can not unlock\n", philo->id);
+	return (0);
+}
+
+bool	is_dead(t_conf *conf, size_t id)
+{
+	if (conf->someone_is_dead == true)
+		return (true);
+	else if (gettime_ms() - conf->philo[id - 1]->start_eat_ms >= conf->die_ms)
+		return (true);
+	else
+		return (false);
 }
 
 int	dead_check(t_philo *philo)
 {
-	if (is_dead(philo->conf))
+	if (is_dead(philo->conf, philo->id))
 	{
 		put_forks(philo->conf, philo->id);
-		change_status(philo, DEAD);
+		change_condition(philo, DEAD);
 		print_action(philo->conf, philo->id, RED"is dead"END);
 		return (1);
 	}
 	else 
-		return (0);
-}
-
-bool	full_check(t_conf *conf)
-{
-	size_t	i;
-	size_t	n_full_philo;
-
-	n_full_philo = 0;
-	i = -1;
-	while (++i < conf->num_philos)
-	{
-		if (conf->philo[i]->status == INVALID)
-			return (0);
-		if (conf->philo[i]->status == FULL)
-		{
-			n_full_philo++;
-		}
-	}
-	//printf("%ld\n",n_full_philo);
-	if (n_full_philo == conf->num_must_eat)
-		return (1);
-	else
 		return (0);
 }
 
