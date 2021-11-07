@@ -1,10 +1,9 @@
 CC				= 	gcc
-CFLAGS			= 	-pthread -Wall -Wextra -Werror
+CFLAGS			= 	-pthread -Wall -Wextra -Werror #-fsanitize=thread
 NAME			= 	philo
 INCLUDES		= 	includes
 SRCS_PATH		= 	./srcs/
-SRCS_FILES    	= 	main.c ft_atoi.c ft_putstr_fd.c ft_strlen.c args_check.c utils.c init.c \
-					atodekesu.c fork.c philo.c action.c
+SRCS_FILES    	= 	main.c ft_atoi.c libft.c args_check.c init.c utils.c fork.c
 SRCS			= 	$(addprefix $(SRCS_PATH), $(SRCS_FILES))
 SRCS_OBJS		= 	$(SRCS:.c=.o)
 

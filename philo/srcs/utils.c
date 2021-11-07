@@ -12,7 +12,7 @@ void	*my_malloc(size_t size)
 	return (ptr);
 }
 
-size_t	gettime_ms(void)
+size_t	get_time_ms(void)
 {
 	struct timeval	tv;
 

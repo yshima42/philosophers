@@ -6,31 +6,23 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/05 16:17:42 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/07 22:36:45 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
 
-//eixtを全部消す
-// philo1人の時に対処。argで弾く
-
-int	change_condition(t_philo *philo, t_condition condition)
+void	print_action(t_conf *conf, size_t id, char *action)
 {
-	if (pthread_mutex_lock(&philo->m_status) != 0)
-		printf("%lu: mutex can not lock\n", philo->id);
-	philo->condition = condition;
-	philo->conf->someone_is_dead = true;
-	if (pthread_mutex_unlock(&philo->m_status) != 0)
-		printf("%lu: mutex can not unlock\n", philo->id);
-	return (0);
+	pthread_mutex_lock(&conf->m_print);
+	if (conf->someone_is_dead == false)
+		printf("%ld %ld %s\n", get_time_ms(), id, action);
+	pthread_mutex_unlock(&conf->m_print);
 }
 
 bool	is_dead(t_conf *conf, size_t id)
 {
-	if (conf->someone_is_dead == true)
-		return (true);
-	else if (gettime_ms() - conf->philo[id - 1]->start_eat_ms >= conf->die_ms)
+	if (get_time_ms() - conf->philo[id - 1]->start_eat_ms >= conf->die_ms)
 		return (true);
 	else
 		return (false);
@@ -38,15 +30,215 @@ bool	is_dead(t_conf *conf, size_t id)
 
 int	dead_check(t_philo *philo)
 {
+	if (philo->conf->someone_is_dead == true)
+		return (1);
 	if (is_dead(philo->conf, philo->id))
 	{
-		put_forks(philo->conf, philo->id);
-		change_condition(philo, DEAD);
 		print_action(philo->conf, philo->id, RED"is dead"END);
+		philo->conf->someone_is_dead = true;
+		put_forks(philo->conf, philo->id);
+		/* fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
+		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf); */
 		return (1);
 	}
 	else 
 		return (0);
+}
+
+size_t	start_time_set(t_philo *philo)
+{
+	size_t	start_time_ms;
+	
+	if (philo->conf->num_philos % 2 == 0)
+	{
+		if (philo->id % 2 != 0)
+			start_time_ms = philo->conf->eat_ms;
+		else
+			start_time_ms = 0;//検討
+	}
+	else
+	{
+		if (philo->id == 1)
+			start_time_ms = philo->conf->eat_ms * 2;
+		else if (philo->id % 2 != 0)
+			start_time_ms = 0;
+		else
+			start_time_ms = philo->conf->eat_ms;
+	}
+	return (start_time_ms);
+}
+
+bool	wait_action_time(t_philo *philo, size_t limit_ms)
+{
+	size_t	start_ms;
+	size_t	current_ms;
+	size_t	diff;
+
+	(void)philo;//必要なければ最後に消す
+	start_ms = get_time_ms();
+	while (1)
+	{
+		current_ms = get_time_ms();
+		diff = current_ms - start_ms;
+		if (limit_ms <= diff)
+			break ;
+		if (philo->conf->someone_is_dead == true)
+			return (true);
+		/* if (dead_check(philo))
+			return (true); */
+		usleep(100);
+	}
+	return (false);
+}
+
+int	thinking(t_philo *philo)
+{
+	/* if (dead_check(philo))
+		return (1); */
+	print_action(philo->conf, philo->id, YELLOW"is thinking"END);	
+	/* if (philo->conf->num_philos % 2 == 1)
+		if (wait_action_time(philo, philo->conf->eat_ms))
+		return (1); */
+	usleep(100);//検討
+	return (0);
+}
+
+int	sleeping(t_philo *philo)
+{
+	/* if (dead_check(philo))
+		return (1); */
+	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
+	if (wait_action_time(philo, philo->conf->sleep_ms))
+		return (true);
+	usleep(100);
+	return (0);
+}
+
+int	eating(t_philo *philo)
+{
+	/* if (dead_check(philo))
+		return (1); */
+	print_action(philo->conf, philo->id, GREEN"is eating"END);
+	philo->start_eat_ms = get_time_ms();
+	//printf("id: %zu, philo->start_eat_ms: %zu\n", philo->id, philo->start_eat_ms);
+	if (wait_action_time(philo, philo->conf->eat_ms))
+		return (true);
+	/* philo->eat_count++;
+	if (philo->eat_count == philo->conf->num_must_eat)
+		philo->condition = FULL; */
+	usleep(100);
+	return (0);
+}
+
+void	*philo_main(void *arg)
+{
+	t_philo	*philo;
+	size_t	start_time_ms;
+
+	philo = (t_philo *)arg;
+	start_time_ms = start_time_set(philo);
+	//printf("id: %zu, fsm: %zu\n",philo->id, start_time_ms);
+	philo->start_eat_ms = get_time_ms();
+	wait_action_time(philo, start_time_ms);
+	//printf("id: %zu, now: %zu\n",philo->id, get_time_ms());
+	while (1)
+	{
+		if (take_forks(philo->conf, philo->id)
+		|| eating(philo)
+		|| put_forks(philo->conf, philo->id)
+		|| sleeping(philo)
+		|| thinking(philo))
+			break;
+	}
+	//if (philo->has_right_fork)
+		fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
+	//if (philo->has_left_fork) //入れるかどうか検討
+		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf);
+	return ("finished");
+}
+
+void	*monitor_main(void *arg)
+{
+	t_monitor	*monitor;
+
+	monitor = (t_monitor *)arg;
+	//printf("id: %zu, now: %zu\n",philo->id, get_time_ms());	
+	while (1)
+	{
+		if (dead_check(monitor->philo))
+		{
+			break;
+		}
+	}
+	return ("finished");
+}
+
+int	philo_create(t_conf *conf)
+{
+	size_t	i;
+
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		if (pthread_create(&conf->philo[i]->thread, NULL, philo_main, (void *)conf->philo[i]) != 0)
+		{
+			printf("pthread_create error\n");
+			return (EXIT_FAILURE);
+		}
+	}
+	return (0);
+}
+
+int	monitor_create(t_conf *conf)
+{
+	size_t	i;
+
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		if (pthread_create(&conf->monitor[i]->thread, NULL, monitor_main, (void *)conf->monitor[i]) != 0)
+		{
+			printf("pthread_create error\n");
+			return (EXIT_FAILURE);
+		}
+	}
+	return (0);
+}
+
+int	philo_join(t_conf *conf)
+{
+	size_t	i;
+
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		char		*ret;
+		if (pthread_join(conf->philo[i]->thread, (void **)&ret) != 0)
+		{
+			printf ("join error\n");
+			return (EXIT_FAILURE);
+		}
+		//printf("id: %zu, thread has finished: %s\n", conf->philo[i]->id, ret);
+	}
+	return (0);
+}
+
+int	monitor_join(t_conf *conf)
+{
+	size_t	i;
+
+	i = -1;
+	while (++i < conf->num_philos)
+	{
+		char	*ret;
+		if (pthread_join(conf->monitor[i]->thread, (void **)&ret) != 0)
+		{
+			printf ("join error\n");
+			return (EXIT_FAILURE);
+		}
+		//printf("id: %zu, thread has finished: %s\n", conf->monitor[i]->id, ret);
+	}
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -55,11 +247,14 @@ int	main(int ac, char **av)
 
 	args_check(ac, av);
 	conf = init_conf(ac, av);
-	init_philo(conf);
-	init_forks(conf);
-	philo_create(conf);
-	philo_join(conf);
-	destroy_forks(conf);
+	if (philo_create(conf))
+		return (EXIT_FAILURE);
+	usleep(100);
+	if (monitor_create(conf))
+		return (EXIT_FAILURE);
+	if (philo_join(conf) ||	monitor_join(conf))
+		return (EXIT_FAILURE);
+	destroy_forks(conf);//mutex全部destroyする
 	//pthread_mutex_destroy(&conf->philo[i]->m_status);
 	printf("end of file\n");
 }
