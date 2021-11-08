@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/07 22:36:45 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/08 10:46:53 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ void	print_action(t_conf *conf, size_t id, char *action)
 
 bool	is_dead(t_conf *conf, size_t id)
 {
+	//printf("ms: %zu, sem: %zu, die_ms: %zu", get_time_ms(), conf->philo[id - 1]->start_eat_ms, conf->die_ms);
 	if (get_time_ms() - conf->philo[id - 1]->start_eat_ms >= conf->die_ms)
 		return (true);
 	else
@@ -54,14 +55,14 @@ size_t	start_time_set(t_philo *philo)
 		if (philo->id % 2 != 0)
 			start_time_ms = philo->conf->eat_ms;
 		else
-			start_time_ms = 0;//検討
+			start_time_ms = 10;//検討
 	}
 	else
 	{
 		if (philo->id == 1)
 			start_time_ms = philo->conf->eat_ms * 2;
 		else if (philo->id % 2 != 0)
-			start_time_ms = 0;
+			start_time_ms = 10;
 		else
 			start_time_ms = philo->conf->eat_ms;
 	}
@@ -99,7 +100,8 @@ int	thinking(t_philo *philo)
 	/* if (philo->conf->num_philos % 2 == 1)
 		if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1); */
-	usleep(100);//検討
+	wait_action_time(philo, start_time_set(philo));
+	//usleep(100);//検討
 	return (0);
 }
 
@@ -110,7 +112,7 @@ int	sleeping(t_philo *philo)
 	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
 	if (wait_action_time(philo, philo->conf->sleep_ms))
 		return (true);
-	usleep(100);
+	usleep(50);
 	return (0);
 }
 
@@ -126,7 +128,7 @@ int	eating(t_philo *philo)
 	/* philo->eat_count++;
 	if (philo->eat_count == philo->conf->num_must_eat)
 		philo->condition = FULL; */
-	usleep(100);
+	usleep(50);
 	return (0);
 }
 
@@ -167,8 +169,11 @@ void	*monitor_main(void *arg)
 	{
 		if (dead_check(monitor->philo))
 		{
+			//printf("ms: %zu\n",get_time_ms());
+			//printf("moni-id:%zu, philo-id: %zu\n", monitor->id, monitor->philo->id);
 			break;
 		}
+		usleep(1000);
 	}
 	return ("finished");
 }
