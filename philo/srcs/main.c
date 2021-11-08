@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/08 10:46:53 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/08 10:49:46 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,18 +53,18 @@ size_t	start_time_set(t_philo *philo)
 	if (philo->conf->num_philos % 2 == 0)
 	{
 		if (philo->id % 2 != 0)
-			start_time_ms = philo->conf->eat_ms;
+			start_time_ms = philo->conf->eat_ms * 0.9;
 		else
 			start_time_ms = 10;//検討
 	}
 	else
 	{
 		if (philo->id == 1)
-			start_time_ms = philo->conf->eat_ms * 2;
+			start_time_ms = philo->conf->eat_ms * 2 * 0.9;
 		else if (philo->id % 2 != 0)
 			start_time_ms = 10;
 		else
-			start_time_ms = philo->conf->eat_ms;
+			start_time_ms = philo->conf->eat_ms * 0.9;
 	}
 	return (start_time_ms);
 }
