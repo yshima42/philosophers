@@ -55,18 +55,18 @@ int	take_forks(t_conf *conf, size_t id)
 		return (1); */
 	if (fork_mutex(LOCK, RIGHT, id, conf))
 		return (-1);//修正
-	if (conf->philo[id - 1]->conf->someone_is_dead == true)
+	if (conf->someone_is_dead == true)
 			return (true);
 	/* if (dead_check(conf->philo[id - 1]))
 		return (1); */
-	print_action(conf, id, CYAN"has taken a fork"END);
+	print_action(conf, id, CYAN"has taken a own fork"END);
 	if (fork_mutex(LOCK, LEFT, id, conf))
 		return (-1);//修正
-	if (conf->philo[id - 1]->conf->someone_is_dead == true)
+	if (conf->someone_is_dead == true)
 			return (true);
 	/* if (dead_check(conf->philo[id - 1]))
 		return (1); */
-	print_action(conf, id, CYAN"has taken a fork"END);
+	print_action(conf, id, CYAN"has taken another fork"END);
 	return (0);
 }
 
