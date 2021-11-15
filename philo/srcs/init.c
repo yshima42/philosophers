@@ -11,7 +11,7 @@ void	init_philo(t_conf *conf)
 		conf->philo[i] = my_malloc(sizeof(t_philo));//freeする
 		conf->philo[i]->id = i + 1;
 		conf->philo[i]->eat_count = 0;
-		conf->philo[i]->start_eat_ms = 0;
+		conf->philo[i]->last_eat_ms = 0;
 		conf->philo[i]->has_right_fork = false;
 		conf->philo[i]->has_left_fork = false;
 		/* conf->philo[i]->status = INVALID;

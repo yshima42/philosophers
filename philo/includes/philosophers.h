@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/08 11:38:18 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 09:45:34 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ typedef struct s_philo
 {
 	size_t			id;
 	size_t			eat_count;
-	size_t			start_eat_ms;
+	size_t			last_eat_ms;
 	bool			has_right_fork;
 	bool			has_left_fork;
 /* 	t_status		status;

@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/12 17:15:07 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 09:49:40 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ void	print_action(t_conf *conf, size_t id, char *action)
 
 bool	is_dead(t_conf *conf, size_t id)
 {
-	//printf("ms: %zu, sem: %zu, die_ms: %zu", get_time_ms(), conf->philo[id - 1]->start_eat_ms, conf->die_ms);
-	if (get_time_ms() - conf->philo[id - 1]->start_eat_ms >= conf->die_ms)
+	//printf("ms: %zu, sem: %zu, die_ms: %zu", get_time_ms(), conf->philo[id - 1]->last_eat_ms, conf->die_ms);
+	if (get_time_ms() - conf->philo[id - 1]->last_eat_ms >= conf->die_ms)
 		return (true);
 	else
 		return (false);
@@ -50,12 +50,7 @@ int	full_check(t_philo *philo)
 {
 	usleep(100);
 	if (philo->condition == FULL)
-	{
-		//print_action(philo->conf, philo->id, RED"is full"END);
-		//philo->conf->someone_is_dead = true;
-		//put_forks(philo->conf, philo->id);
-		/* fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
-		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf); */
+	{	
 		usleep(philo->conf->eat_ms * 1000);
 		return (1);
 	}
@@ -115,6 +110,8 @@ int	thinking(t_philo *philo)
 		if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1); */
 	//wait_action_time(philo, start_time_set(philo));
+	if (philo->eat_count == philo->conf->num_must_eat)
+		return (1);
 	usleep(500);//検討
 	return (0);
 }
@@ -132,18 +129,20 @@ int	eating(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, GREEN"is eating"END);
 	philo->eat_count++;
-	philo->start_eat_ms = get_time_ms();
-	//printf("id: %zu, philo->start_eat_ms: %zu\n", philo->id, philo->start_eat_ms);
+	philo->last_eat_ms = get_time_ms();
+	//printf("id: %zu, philo->last_eat_ms: %zu\n", philo->id, philo->last_eat_ms);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (true);
 	if (philo->eat_count == philo->conf->num_must_eat)
+		philo->condition = FULL;
+	/* if (philo->eat_count == philo->conf->num_must_eat)
 	{
 		print_action(philo->conf, philo->id, RED"is full"END);//書かない方が良いかも
 		put_forks(philo->conf, philo->id);
 		//philo->condition = FULL;
 		//usleep(1000);
 		return (1);
-	}
+	} */
 	usleep(50);
 	return (0);
 }
@@ -151,16 +150,11 @@ int	eating(t_philo *philo)
 void	*philo_main(void *arg)
 {
 	t_philo	*philo;
-	//size_t	start_time_ms;
 
 	philo = (t_philo *)arg;
-	//start_time_ms = start_time_set(philo);
-	//printf("id: %zu, fsm: %zu\n",philo->id, start_time_ms);
-	philo->start_eat_ms = get_time_ms();
-	//wait_action_time(philo, start_time_ms);
+	philo->last_eat_ms = get_time_ms();
 	if (philo->id % 2 == 1)
 			usleep(philo->conf->eat_ms * 0.9 * 1000);
-	//printf("id: %zu, now: %zu\n",philo->id, get_time_ms());
 	while (1)
 	{
 		if (take_forks(philo->conf, philo->id)
@@ -170,10 +164,10 @@ void	*philo_main(void *arg)
 		|| thinking(philo))
 			break;
 	}
-	//if (philo->has_right_fork)
-		fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
+	/* 	fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
 	//if (philo->has_left_fork) //入れるかどうか検討
-		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf);
+		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf); */
+	put_forks(philo->conf, philo->id);
 	return ("finished");
 }
 
