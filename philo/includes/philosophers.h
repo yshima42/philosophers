@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 09:45:34 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 10:12:26 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,10 +93,10 @@ typedef struct s_conf
 }	t_conf;
 
 //arg_check.c
-void	args_check(int ac, char **av);
+bool	args_check(int ac, char **av);
 
-//ft_atoi.c
-int	ft_atoi(const char *str);
+//ph_atoi.c
+int	ph_atoi(const char *str);
 
 //init_conf.c
 t_conf	*init_conf(int ac, char **av);

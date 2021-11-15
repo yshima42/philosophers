@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 09:49:40 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 10:29:28 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,10 +106,6 @@ bool	wait_action_time(t_philo *philo, size_t limit_ms)
 int	thinking(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, YELLOW"is thinking"END);	
-	/* if (philo->conf->num_philos % 2 == 1)
-		if (wait_action_time(philo, philo->conf->eat_ms))
-		return (1); */
-	//wait_action_time(philo, start_time_set(philo));
 	if (philo->eat_count == philo->conf->num_must_eat)
 		return (1);
 	usleep(500);//検討
@@ -120,7 +116,7 @@ int	sleeping(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
 	if (wait_action_time(philo, philo->conf->sleep_ms))
-		return (true);
+		return (1);
 	usleep(50);
 	return (0);
 }
@@ -135,14 +131,6 @@ int	eating(t_philo *philo)
 		return (true);
 	if (philo->eat_count == philo->conf->num_must_eat)
 		philo->condition = FULL;
-	/* if (philo->eat_count == philo->conf->num_must_eat)
-	{
-		print_action(philo->conf, philo->id, RED"is full"END);//書かない方が良いかも
-		put_forks(philo->conf, philo->id);
-		//philo->condition = FULL;
-		//usleep(1000);
-		return (1);
-	} */
 	usleep(50);
 	return (0);
 }
@@ -164,10 +152,7 @@ void	*philo_main(void *arg)
 		|| thinking(philo))
 			break;
 	}
-	/* 	fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
-	//if (philo->has_left_fork) //入れるかどうか検討
-		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf); */
-	put_forks(philo->conf, philo->id);
+	put_forks(philo->conf, philo->id);//if deadを入れるか検討
 	return ("finished");
 }
 
@@ -305,7 +290,8 @@ int	main(int ac, char **av)
 {
 	t_conf	*conf;
 
-	args_check(ac, av);
+	if (!args_check(ac, av))
+		return (EXIT_FAILURE);
 	conf = init_conf(ac, av);
 	if (philo_create(conf) || monitor_create(conf))
 		return (EXIT_FAILURE);

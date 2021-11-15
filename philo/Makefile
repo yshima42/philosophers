@@ -3,7 +3,7 @@ CFLAGS			= 	-pthread -Wall -Wextra -Werror #-fsanitize=thread
 NAME			= 	philo
 INCLUDES		= 	includes
 SRCS_PATH		= 	./srcs/
-SRCS_FILES    	= 	main.c ft_atoi.c libft.c args_check.c init.c utils.c fork.c
+SRCS_FILES    	= 	main.c ph_atoi.c libft.c args_check.c init.c utils.c fork.c
 SRCS			= 	$(addprefix $(SRCS_PATH), $(SRCS_FILES))
 SRCS_OBJS		= 	$(SRCS:.c=.o)
 

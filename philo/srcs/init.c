@@ -53,14 +53,14 @@ t_conf	*init_conf(int ac, char **av)
 	t_conf	*conf;
 	
 	conf = my_malloc(sizeof(t_conf));//freeする
-	conf->num_philos = ft_atoi(av[1]);
-	conf->die_ms = ft_atoi(av[2]);
-	conf->eat_ms = ft_atoi(av[3]);
-	conf->sleep_ms = ft_atoi(av[4]);
+	conf->num_philos = ph_atoi(av[1]);
+	conf->die_ms = ph_atoi(av[2]);
+	conf->eat_ms = ph_atoi(av[3]);
+	conf->sleep_ms = ph_atoi(av[4]);
 	conf->someone_is_dead = false;
 	pthread_mutex_init(&conf->m_print, NULL);
 	if (ac == 6)
-		conf->num_must_eat = ft_atoi(av[5]);
+		conf->num_must_eat = ph_atoi(av[5]);
 	init_philo(conf);
 	init_monitor(conf);
 	init_forks(conf);

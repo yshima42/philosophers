@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   ph_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:16 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/07 16:53:56 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 11:15:01 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,47 +25,45 @@ static char	*del_spaces(char const *str)
 	return (no_spaces_str);
 }
 
-static int	max_check(size_t result, char *ns_str, size_t i, int sign)
+static bool	max_check(size_t result, char *ns_str, size_t i)
 {
 	size_t temp;
 
 	temp = result * 10 + (ns_str[i] - '0');
 	if (temp / 10 != result)
-	{
-		if (sign == -1)
-			return (0);
-		else
-			return (-1);
-	}
+		return (false);
 	else
-		return (1);
+		return (true);
 }
 
-int	ft_atoi(const char *str)
+static bool	num_check(char *no_spaces_str, size_t i)
+{
+	if (no_spaces_str[i] < '0' || no_spaces_str[i] > '9')
+		return (false);
+	if (no_spaces_str[i] == '0' && no_spaces_str[i + 1] != '\0')
+		return (false);
+	return (true);
+}
+
+int	ph_atoi(const char *str)
 {
 	size_t	i;
-	int		sign;
 	size_t	result;
 	char	*no_spaces_str;
 
 	i = 0;
 	result = 0;
 	no_spaces_str = del_spaces(str);
-	sign = 1;
-	if (no_spaces_str[i] == '-' || no_spaces_str[i] == '+')
-	{
-		if (no_spaces_str[i] == '-')
-			sign = -1;
-		i++;
-	}
-	if (no_spaces_str[i] < '0' || no_spaces_str[i] > '9')
-		return (0);
+	if (!num_check(no_spaces_str, i))
+		return (-1);
 	while (no_spaces_str[i] >= '0' && no_spaces_str[i] <= '9')
 	{
-		if (max_check(result, no_spaces_str, i, sign) != 1)
-			return (max_check(result, no_spaces_str, i, sign));
+		if (!max_check(result, no_spaces_str, i))
+			return (-1);
 		result = result * 10 + (no_spaces_str[i] - '0');
 		i++;
 	}
-	return ((int)result * sign);
+	if (no_spaces_str[i])
+		return (-1);
+	return ((int)result);
 }
