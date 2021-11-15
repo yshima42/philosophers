@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 15:11:40 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 17:31:00 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,13 @@ static bool	wait_action_time(t_philo *philo, size_t limit_ms)
 		diff = current_ms - start_ms;
 		if (limit_ms <= diff)
 			break ;
-		if (philo->conf->someone_is_dead == true
-			|| philo->conf->everyone_full == true)
+		pthread_mutex_lock(&philo->conf->m_finish_flag);
+		if (philo->conf->finish_flag == true)
+		{
+			pthread_mutex_unlock(&philo->conf->m_finish_flag);
 			return (true);
+		}
+		pthread_mutex_unlock(&philo->conf->m_finish_flag);
 		usleep(500);
 	}
 	return (false);
@@ -52,12 +56,14 @@ static int	sleeping(t_philo *philo)
 static int	eating(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, GREEN"is eating"END);
-	pthread_mutex_lock(&philo->m_last_eat);
+	pthread_mutex_lock(&philo->conf->m_finish_flag);
 	philo->eat_count++;
-	philo->last_eat_ms = get_time_ms();
+	philo->last_eat_ms = get_time_ms();	
 	if (philo->eat_count == philo->conf->num_must_eat)
-		philo->condition = FULL;
-	pthread_mutex_unlock(&philo->m_last_eat);
+		philo->conf->num_full_philos++;
+	if (philo->conf->num_full_philos == philo->conf->num_philos)
+		philo->conf->finish_flag = true;
+	pthread_mutex_unlock(&philo->conf->m_finish_flag);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1);
 	usleep(50);
@@ -69,7 +75,9 @@ void	*philo_main(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
+	pthread_mutex_lock(&philo->conf->m_finish_flag);
 	philo->last_eat_ms = get_time_ms();
+	pthread_mutex_unlock(&philo->conf->m_finish_flag);
 	if (philo->id % 2 == 1)
 		usleep(philo->conf->eat_ms * 0.9 * 1000);
 	while (1)

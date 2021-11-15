@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:06:34 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 15:06:54 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 16:33:00 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	show_usage(void)
 
 void	show_num_error(void)
 {
-	printf("Args need to be positive integer including zero\n");
+	printf("Args need to be positive integer\n");
 }
 
 bool	args_check(int ac, char **av)
@@ -35,13 +35,13 @@ bool	args_check(int ac, char **av)
 		show_usage();
 		return (false);
 	}
-	if (ph_atoi(av[1]) < 0 || ph_atoi(av[2]) < 0 || ph_atoi(av[3]) < 0
-		|| ph_atoi(av[4]) < 0)
+	if (ph_atoi(av[1]) <= 0 || ph_atoi(av[2]) <= 0 || ph_atoi(av[3]) <= 0
+		|| ph_atoi(av[4]) <= 0)
 	{
 		show_num_error();
 		return (false);
 	}
-	if (ac == 6 && ph_atoi(av[5]) < 0)
+	if (ac == 6 && ph_atoi(av[5]) <= 0)
 	{
 		show_num_error();
 		return (false);

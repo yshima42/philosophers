@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:07 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 15:08:08 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 16:42:46 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ static void	destroy_forks(t_conf *conf)
 void	destroy_all_mutex(t_conf *conf)
 {
 	destroy_forks(conf);//mutex全部destroyする
-	pthread_mutex_destroy(&conf->m_someone_is_dead);
-	pthread_mutex_destroy(&conf->m_everyone_full);
+	pthread_mutex_destroy(&conf->m_finish_flag);
+	//pthread_mutex_destroy(&conf->m_everyone_full);
 	pthread_mutex_destroy(&conf->m_print);
 }
 

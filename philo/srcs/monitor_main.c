@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:09:03 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 15:10:01 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 17:32:24 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,29 @@
 
 static int	dead_check(t_philo *philo)
 {
-	if (philo->conf->someone_is_dead == true)
+	pthread_mutex_lock(&philo->conf->m_finish_flag);
+	if (philo->conf->finish_flag == true)
+	{
+		pthread_mutex_unlock(&philo->conf->m_finish_flag);
 		return (1);
+	}
 	if (get_time_ms() - philo->last_eat_ms >= philo->conf->die_ms)
 	{
-		pthread_mutex_lock(&philo->conf->m_someone_is_dead);
+		pthread_mutex_unlock(&philo->conf->m_finish_flag);
 		print_action(philo->conf, philo->id, RED"is dead"END);
-		philo->conf->someone_is_dead = true;
-		pthread_mutex_unlock(&philo->conf->m_someone_is_dead);
-		put_forks(philo->conf, philo->id);
+		pthread_mutex_lock(&philo->conf->m_finish_flag);
+		philo->conf->finish_flag = true;
+		pthread_mutex_unlock(&philo->conf->m_finish_flag);
 		return (1);
 	}
 	else
+	{
+		pthread_mutex_unlock(&philo->conf->m_finish_flag);
 		return (0);
+	}
 }
 
-static int	full_check(t_philo *philo)
+/* static int	full_check(t_philo *philo)
 {
 	size_t	i;
 	size_t	num_full_philos;
@@ -54,7 +61,7 @@ static int	full_check(t_philo *philo)
 	}
 	else
 		return (0);
-}
+} */
 
 void	*monitor_main(void *arg)
 {
@@ -64,7 +71,7 @@ void	*monitor_main(void *arg)
 	monitor = (t_monitor *)arg;
 	while (1)
 	{
-		if (dead_check(monitor->philo) || full_check(monitor->philo))
+		if (dead_check(monitor->philo))
 			break ;
 		usleep(1000);
 	}

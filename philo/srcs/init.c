@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:12 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 15:08:22 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 17:35:58 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ void	init_philo(t_conf *conf)
 		conf->philo[i]->id = i + 1;
 		conf->philo[i]->eat_count = 0;
 		conf->philo[i]->last_eat_ms = 0;
+		conf->philo[i]->has_right_fork = false;
+		conf->philo[i]->has_left_fork = false;
 		pthread_mutex_init(&conf->philo[i]->m_last_eat, NULL);
 		conf->philo[i]->conf = conf;
 	}
@@ -66,9 +68,10 @@ t_conf	*init_conf(int ac, char **av)
 	conf->die_ms = ph_atoi(av[2]);
 	conf->eat_ms = ph_atoi(av[3]);
 	conf->sleep_ms = ph_atoi(av[4]);
-	conf->someone_is_dead = false;
-	pthread_mutex_init(&conf->m_someone_is_dead, NULL);
-	pthread_mutex_init(&conf->m_everyone_full, NULL);
+	conf->num_full_philos = 0;
+	conf->finish_flag = false;
+	pthread_mutex_init(&conf->m_finish_flag, NULL);
+	//pthread_mutex_init(&conf->m_everyone_full, NULL);
 	pthread_mutex_init(&conf->m_print, NULL);
 	if (ac == 6)
 		conf->num_must_eat = ph_atoi(av[5]);
