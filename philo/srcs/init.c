@@ -12,10 +12,11 @@ void	init_philo(t_conf *conf)
 		conf->philo[i]->id = i + 1;
 		conf->philo[i]->eat_count = 0;
 		conf->philo[i]->last_eat_ms = 0;
-		conf->philo[i]->has_right_fork = false;
-		conf->philo[i]->has_left_fork = false;
+		/* conf->philo[i]->has_right_fork = false;
+		conf->philo[i]->has_left_fork = false; */
 		/* conf->philo[i]->status = INVALID;
 		pthread_mutex_init(&conf->philo[i]->m_status, NULL); */
+		pthread_mutex_init(&conf->philo[i]->m_last_eat, NULL);
 		conf->philo[i]->conf = conf;
 	}
 }
@@ -58,6 +59,7 @@ t_conf	*init_conf(int ac, char **av)
 	conf->eat_ms = ph_atoi(av[3]);
 	conf->sleep_ms = ph_atoi(av[4]);
 	conf->someone_is_dead = false;
+	pthread_mutex_init(&conf->m_someone_is_dead, NULL);
 	pthread_mutex_init(&conf->m_print, NULL);
 	if (ac == 6)
 		conf->num_must_eat = ph_atoi(av[5]);

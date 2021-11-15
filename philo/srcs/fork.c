@@ -8,6 +8,7 @@ void	destroy_forks(t_conf *conf)
 	while (i < conf->num_philos)
 	{
 		pthread_mutex_destroy(conf->m_forks[i]);
+		pthread_mutex_destroy(&conf->philo[i]->m_last_eat);//要検討　修正
 		free(conf->m_forks[i]);
 		i++;
 	}

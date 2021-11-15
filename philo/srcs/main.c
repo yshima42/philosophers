@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 10:29:28 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 13:05:18 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,10 @@ int	dead_check(t_philo *philo)
 		return (1);
 	if (is_dead(philo->conf, philo->id))
 	{
+		pthread_mutex_lock(&philo->conf->m_someone_is_dead);
 		print_action(philo->conf, philo->id, RED"is dead"END);
 		philo->conf->someone_is_dead = true;
+		pthread_mutex_unlock(&philo->conf->m_someone_is_dead);
 		put_forks(philo->conf, philo->id);
 		/* fork_mutex(UNLOCK, RIGHT, philo->id, philo->conf);
 		fork_mutex(UNLOCK, LEFT, philo->id, philo->conf); */
@@ -58,29 +60,6 @@ int	full_check(t_philo *philo)
 		return (0);
 }
 
-/* size_t	start_time_set(t_philo *philo)
-{
-	size_t	start_time_ms;
-	
-	if (philo->conf->num_philos % 2 == 0)
-	{
-		if (philo->id % 2 != 1)
-			start_time_ms = 500philo->conf->eat_ms;
-		else
-			start_time_ms = 0;//検討
-	}
-	else
-	{
-		if (philo->id == 1)
-			start_time_ms = philo->conf->eat_ms * 2;
-		else if (philo->id % 2 != 0)
-			start_time_ms = 10;
-		else
-			start_time_ms = philo->conf->eat_ms;
-	}
-	return (start_time_ms);
-} */
-
 bool	wait_action_time(t_philo *philo, size_t limit_ms)
 {
 	size_t	start_ms;
@@ -96,8 +75,6 @@ bool	wait_action_time(t_philo *philo, size_t limit_ms)
 			break ;
 		if (philo->conf->someone_is_dead == true)
 			return (true);
-		/* if (dead_check(philo))
-			return (true); */
 		usleep(500);
 	}
 	return (false);
@@ -124,9 +101,10 @@ int	sleeping(t_philo *philo)
 int	eating(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, GREEN"is eating"END);
+	pthread_mutex_lock(&philo->m_last_eat);
 	philo->eat_count++;
 	philo->last_eat_ms = get_time_ms();
-	//printf("id: %zu, philo->last_eat_ms: %zu\n", philo->id, philo->last_eat_ms);
+	pthread_mutex_unlock(&philo->m_last_eat);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (true);
 	if (philo->eat_count == philo->conf->num_must_eat)
@@ -162,15 +140,10 @@ void	*monitor_main(void *arg)
 
 	usleep(100);
 	monitor = (t_monitor *)arg;
-	//printf("id: %zu, now: %zu\n",philo->id, get_time_ms());	
 	while (1)
 	{
 		if (dead_check(monitor->philo) || full_check(monitor->philo))
-		{
-			//printf("ms: %zu\n",get_time_ms());
-			//printf("moni-id:%zu, philo-id: %zu\n", monitor->id, monitor->philo->id);
 			break;
-		}
 		usleep(1000);
 	}
 	return ("finished");
@@ -248,6 +221,7 @@ int	monitor_join(t_conf *conf)
 void	destroy_all_mutex(t_conf *conf)
 {
 	destroy_forks(conf);//mutex全部destroyする
+	pthread_mutex_destroy(&conf->m_someone_is_dead);
 	pthread_mutex_destroy(&conf->m_print);
 }
 

@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 10:12:26 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 11:50:52 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,18 @@
 # define MAGENTA		"\033[35m"
 # define CYAN			"\033[36m"
 
-typedef enum e_status
+/* typedef enum e_status
 {
 	INVALID,
 	EAT,
 	SLEEP,
 	THINK,
-}	t_status;
+}	t_status; */
 
 typedef enum e_condition
 {
-	ALIVE,
-	DEAD,
+	NORMAL,
+	/* DEAD, */
 	FULL,
 }	t_condition;
 
@@ -61,10 +61,11 @@ typedef struct s_philo
 	size_t			id;
 	size_t			eat_count;
 	size_t			last_eat_ms;
-	bool			has_right_fork;
-	bool			has_left_fork;
+/* 	bool			has_right_fork;
+	bool			has_left_fork; */
 /* 	t_status		status;
 	pthread_mutex_t	m_status; */
+	pthread_mutex_t	m_last_eat;
 	t_condition		condition;
 	pthread_t		thread;
 	t_conf			*conf;
@@ -86,6 +87,7 @@ typedef struct s_conf
 	size_t			sleep_ms;
 	size_t			num_must_eat;
 	bool			someone_is_dead;
+	pthread_mutex_t	m_someone_is_dead;
 	t_monitor		**monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
