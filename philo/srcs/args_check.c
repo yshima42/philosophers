@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   args_check.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/15 15:06:34 by yshimazu          #+#    #+#             */
+/*   Updated: 2021/11/15 15:06:54 by yshimazu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/philosophers.h"
 
 void	show_usage(void)
@@ -13,7 +25,7 @@ void	show_usage(void)
 
 void	show_num_error(void)
 {
-	printf("Args need to be positive integer including zero\n");	
+	printf("Args need to be positive integer including zero\n");
 }
 
 bool	args_check(int ac, char **av)

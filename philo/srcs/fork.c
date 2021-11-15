@@ -1,20 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fork.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/15 15:14:57 by yshimazu          #+#    #+#             */
+/*   Updated: 2021/11/15 15:14:57 by yshimazu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/philosophers.h"
-
-void	destroy_forks(t_conf *conf)
-{
-	size_t			i;
-
-	i = 0;
-	while (i < conf->num_philos)
-	{
-		pthread_mutex_destroy(conf->m_forks[i]);
-		pthread_mutex_destroy(&conf->philo[i]->m_last_eat);//要検討　修正
-		free(conf->m_forks[i]);
-		i++;
-	}
-	free(conf->m_forks);
-	conf->m_forks = NULL;
-}
 
 int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf)
 {
@@ -41,17 +37,17 @@ int	take_forks(t_conf *conf, size_t id)
 	if (fork_mutex(LOCK, RIGHT, id, conf))
 		return (-1);//修正
 	if (conf->someone_is_dead == true)
-			return (true);
+		return (true);
 	print_action(conf, id, CYAN"has taken a fork"END);
 	if (fork_mutex(LOCK, LEFT, id, conf))
 		return (-1);//修正
 	if (conf->someone_is_dead == true)
-			return (true);
+		return (true);
 	print_action(conf, id, CYAN"has taken a fork"END);//色消す
 	return (0);
 }
 
-int put_forks(t_conf *conf, int id)
+int	put_forks(t_conf *conf, int id)
 {
 	if (fork_mutex(UNLOCK, RIGHT, id, conf))
 		return (-1);

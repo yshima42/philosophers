@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 11:50:52 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 15:13:13 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,8 @@ typedef struct s_conf
 	size_t			num_must_eat;
 	bool			someone_is_dead;
 	pthread_mutex_t	m_someone_is_dead;
+	bool			everyone_full;
+	pthread_mutex_t	m_everyone_full;
 	t_monitor		**monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
@@ -103,22 +105,32 @@ int	ph_atoi(const char *str);
 //init_conf.c
 t_conf	*init_conf(int ac, char **av);
 
-//libft.c
-void	ft_putstr_fd(char *s, int fd);
-
 //utils.c
 void	*my_malloc(size_t size);
 size_t	get_time_ms(void);
+void	ft_putstr_fd(char *s, int fd);
 
 //fork.c
 int	take_forks(t_conf *conf, size_t id);
 int put_forks(t_conf *conf, int id);
-void	destroy_forks(t_conf *conf);
 int	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf);
+
+//monitor_main.c
+void	*monitor_main(void *arg);
+
+//philo_main.c
+void	*philo_main(void *arg);
+
+//print_action.c
+void	print_action(t_conf *conf, size_t id, char *action);
+
+//free_destroy.c
+void	destroy_all_mutex(t_conf *conf);
+void	all_free(t_conf *conf);
 
 //main.c
 void	print_action(t_conf *conf, size_t id, char *action);
-int	dead_check(t_philo *philo);
-bool	wait_action_time(t_philo *philo, size_t limit_ms);
+
+
 
 #endif

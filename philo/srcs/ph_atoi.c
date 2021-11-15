@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:16 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 11:15:19 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/15 15:10:26 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static char	*del_spaces(char const *str)
 
 static bool	max_check(size_t result, char *ns_str, size_t i)
 {
-	size_t temp;
+	size_t	temp;
 
 	temp = result * 10 + (ns_str[i] - '0');
 	if (temp / 10 != result)
