@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:39:12 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:47:03 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,14 @@ static bool	wait_action_time(t_philo *philo, size_t limit_ms)
 
 static int	thinking(t_philo *philo)
 {
-	print_action(philo->conf, philo->id, GREEN"is thinking"END);
+	print_action(philo->conf, philo->id, "is thinking");
 	usleep(500);
 	return (0);
 }
 
 static int	sleeping(t_philo *philo)
 {
-	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
+	print_action(philo->conf, philo->id, "is sleeping");
 	if (wait_action_time(philo, philo->conf->sleep_ms))
 		return (1);
 	return (0);
@@ -49,7 +49,7 @@ static int	sleeping(t_philo *philo)
 
 static int	eating(t_philo *philo)
 {
-	print_action(philo->conf, philo->id, YELLOW"is eating"END);
+	print_action(philo->conf, philo->id, "is eating");
 	pthread_mutex_lock(&philo->conf->mutex_common);
 	philo->eat_count++;
 	philo->last_eat_ms = get_time_ms();

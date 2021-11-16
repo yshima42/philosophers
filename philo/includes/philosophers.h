@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 10:42:47 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:18:09 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ typedef struct s_conf
 	size_t			num_must_eat;
 	size_t			num_full_philos;
 	bool			finish_flag;
-	pthread_mutex_t	m_common;
+	pthread_mutex_t	mutex_common;
 	t_monitor		**monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
@@ -86,6 +86,7 @@ int	ph_atoi(const char *str);
 t_conf	*init_conf(int ac, char **av);
 
 //utils.c
+bool	finish_check(t_conf	*conf);
 void	*my_malloc(size_t size);
 size_t	get_time_ms(void);
 void	ft_putstr_fd(char *s, int fd);
@@ -100,7 +101,6 @@ void	*monitor_main(void *arg);
 
 //philo_main.c
 void	*philo_main(void *arg);
-bool	finish_check(t_conf	*conf);
 
 //print_action.c
 void	print_action(t_conf *conf, size_t id, char *action);

@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:14:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:19:29 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:47:23 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ int	take_forks(t_conf *conf, size_t id)
 	fork_mutex(LOCK, RIGHT, id, conf);
 	if (finish_check(conf))
 		return (1);
-	print_action(conf, id, CYAN"has taken a fork"END);
+	print_action(conf, id, "has taken a fork");
 	conf->philo[id - 1]->has_right_fork = true;
 	if (conf->num_philos == 1)
 		return (1);
 	fork_mutex(LOCK, LEFT, id, conf);
 	if (finish_check(conf))
 		return (1);
-	print_action(conf, id, CYAN"has taken a fork"END);
+	print_action(conf, id, "has taken a fork");
 	conf->philo[id - 1]->has_left_fork = true;
 	return (0);
 }
