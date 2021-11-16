@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 17:34:29 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 10:20:44 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 //forksのstatusを管理する変数を追加する
 //一人の時に分岐させる
+//makefileのオプション消す
 
 int	philo_create(t_conf *conf)
 {

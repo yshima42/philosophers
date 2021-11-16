@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:07 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 16:42:46 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 10:38:18 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ static void	destroy_forks(t_conf *conf)
 	while (i < conf->num_philos)
 	{
 		pthread_mutex_destroy(conf->m_forks[i]);
-		pthread_mutex_destroy(&conf->philo[i]->m_last_eat);//要検討　修正
 		free(conf->m_forks[i]);
 		i++;
 	}
@@ -31,9 +30,7 @@ static void	destroy_forks(t_conf *conf)
 void	destroy_all_mutex(t_conf *conf)
 {
 	destroy_forks(conf);//mutex全部destroyする
-	pthread_mutex_destroy(&conf->m_finish_flag);
-	//pthread_mutex_destroy(&conf->m_everyone_full);
-	pthread_mutex_destroy(&conf->m_print);
+	pthread_mutex_destroy(&conf->m_common);
 }
 
 static void	free_monitor(t_conf *conf)

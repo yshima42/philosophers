@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:09:03 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/15 17:32:24 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 10:45:58 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,19 @@
 
 static int	dead_check(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->conf->m_finish_flag);
-	if (philo->conf->finish_flag == true)
-	{
-		pthread_mutex_unlock(&philo->conf->m_finish_flag);
+	if (finish_check(philo->conf))
 		return (1);
-	}
+	pthread_mutex_lock(&philo->conf->m_common);
 	if (get_time_ms() - philo->last_eat_ms >= philo->conf->die_ms)
 	{
-		pthread_mutex_unlock(&philo->conf->m_finish_flag);
-		print_action(philo->conf, philo->id, RED"is dead"END);
-		pthread_mutex_lock(&philo->conf->m_finish_flag);
+		printf("%ld %ld %s\n", get_time_ms(), philo->id, RED"is dead"END);
 		philo->conf->finish_flag = true;
-		pthread_mutex_unlock(&philo->conf->m_finish_flag);
+		pthread_mutex_unlock(&philo->conf->m_common);
 		return (1);
 	}
 	else
 	{
-		pthread_mutex_unlock(&philo->conf->m_finish_flag);
+		pthread_mutex_unlock(&philo->conf->m_common);
 		return (0);
 	}
 }
