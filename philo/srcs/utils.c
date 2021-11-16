@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:12:24 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:11:02 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 14:36:16 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,10 @@ size_t	get_time_ms(void)
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL) == -1)
+	{
 		ft_putstr_fd("gettimeofday error\n", 2);
+		return (0);
+	}
 	return ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000);
 }
 
@@ -61,7 +64,7 @@ void	*my_malloc(size_t size)
 	if (!ptr)
 	{
 		ft_putstr_fd("malloc error\n", 2);
-		exit(EXIT_FAILURE);
+		return (NULL);
 	}
 	return (ptr);
 }

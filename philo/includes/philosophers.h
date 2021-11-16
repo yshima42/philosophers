@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:12:37 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 14:27:29 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,8 +105,7 @@ void	*philo_main(void *arg);
 void	print_action(t_conf *conf, size_t id, char *action);
 
 //free_destroy.c
-void	destroy_all_mutex(t_conf *conf);
-void	all_free(t_conf *conf);
+void	all_free_destroy(t_conf *conf);
 
 //main.c
 void	print_action(t_conf *conf, size_t id, char *action);

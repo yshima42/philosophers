@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:12 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:11:00 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 14:56:18 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,11 @@ t_conf	*init_conf(int ac, char **av)
 	conf->die_ms = ph_atoi(av[2]);
 	conf->eat_ms = ph_atoi(av[3]);
 	conf->sleep_ms = ph_atoi(av[4]);
+	if (ac == 6)
+		conf->num_must_eat = ph_atoi(av[5]);
 	conf->num_full_philos = 0;
 	conf->finish_flag = false;
 	pthread_mutex_init(&conf->m_common, NULL);
-	if (ac == 6)
-		conf->num_must_eat = ph_atoi(av[5]);
 	init_philo(conf);
 	init_monitor(conf);
 	init_forks(conf);

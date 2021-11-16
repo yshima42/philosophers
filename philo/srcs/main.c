@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:50:40 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 14:52:47 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,15 @@ int	main(int ac, char **av)
 		return (EXIT_FAILURE);
 	conf = init_conf(ac, av);
 	if (philo_create(conf) || monitor_create(conf))
+	{
+		all_free_destroy(conf);
 		return (EXIT_FAILURE);
+	}
 	if (philo_join(conf) || monitor_join(conf))
+	{
+		all_free_destroy(conf);
 		return (EXIT_FAILURE);
-	destroy_all_mutex(conf);
-	all_free(conf);
+	}
+	all_free_destroy(conf);
+	return (EXIT_SUCCESS);
 }

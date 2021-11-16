@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_destroy.c                                     :+:      :+:    :+:   */
+/*   all_free_destroy.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:07 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:11:05 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 14:52:05 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,16 @@ static void	destroy_forks(t_conf *conf)
 	while (i < conf->num_philos)
 	{
 		pthread_mutex_destroy(conf->m_forks[i]);
-		free(conf->m_forks[i]);
+		if (conf->m_forks[i])
+			free(conf->m_forks[i]);
 		i++;
 	}
-	free(conf->m_forks);
+	if (conf->m_forks)
+		free(conf->m_forks);
 	conf->m_forks = NULL;
 }
 
-void	destroy_all_mutex(t_conf *conf)
+static void	destroy_all_mutex(t_conf *conf)
 {
 	destroy_forks(conf);
 	pthread_mutex_destroy(&conf->m_common);
@@ -40,10 +42,12 @@ static void	free_monitor(t_conf *conf)
 	i = 0;
 	while (i < conf->num_philos)
 	{
-		free(conf->monitor[i]);
+		if (conf->monitor[i])
+			free(conf->monitor[i]);
 		i++;
 	}
-	free(conf->monitor);
+	if (conf->monitor)
+		free(conf->monitor);
 	conf->monitor = NULL;
 }
 
@@ -54,15 +58,18 @@ static void	free_philo(t_conf *conf)
 	i = 0;
 	while (i < conf->num_philos)
 	{
-		free(conf->philo[i]);
+		if (conf->philo[i])
+			free(conf->philo[i]);
 		i++;
 	}
-	free(conf->philo);
+	if (conf->philo)
+		free(conf->philo);
 	conf->philo = NULL;
 }
 
-void	all_free(t_conf *conf)
+void	all_free_destroy(t_conf *conf)
 {
+	destroy_all_mutex(conf);
 	free_monitor(conf);
 	free_philo(conf);
 	free(conf);
