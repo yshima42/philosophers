@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 14:52:47 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 15:33:20 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,11 @@ int	monitor_create(t_conf *conf)
 int	philo_join(t_conf *conf)
 {
 	size_t	i;
-	char	*ret;
 
 	i = -1;
 	while (++i < conf->num_philos)
 	{
-		if (pthread_join(conf->philo[i]->thread, (void **)&ret) != 0)
+		if (pthread_join(conf->philo[i]->thread, NULL) != 0)
 		{
 			printf ("join error\n");
 			return (EXIT_FAILURE);
@@ -66,12 +65,11 @@ int	philo_join(t_conf *conf)
 int	monitor_join(t_conf *conf)
 {
 	size_t	i;
-	char	*ret;
 
 	i = -1;
 	while (++i < conf->num_philos)
 	{
-		if (pthread_join(conf->monitor[i]->thread, (void **)&ret) != 0)
+		if (pthread_join(conf->monitor[i]->thread, NULL) != 0)
 		{
 			printf ("join error\n");
 			return (EXIT_FAILURE);

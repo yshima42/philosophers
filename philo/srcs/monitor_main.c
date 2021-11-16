@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:09:03 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:11:03 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 15:33:50 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,5 @@ void	*monitor_main(void *arg)
 		if (dead_check(monitor->philo))
 			break ;
 	}
-	return ("monitor finished");
+	return (NULL);
 }

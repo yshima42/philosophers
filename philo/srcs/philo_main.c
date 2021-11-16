@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:11:01 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 15:35:03 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,5 +83,5 @@ void	*philo_main(void *arg)
 			break ;
 	}
 	put_forks(philo->conf, philo->id);
-	return ("philo finished");
+	return (NULL);
 }
