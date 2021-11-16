@@ -6,13 +6,13 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 15:33:20 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 17:50:37 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
 
-int	philo_create(t_conf *conf)
+static int	philo_create(t_conf *conf)
 {
 	size_t	i;
 
@@ -29,7 +29,7 @@ int	philo_create(t_conf *conf)
 	return (0);
 }
 
-int	monitor_create(t_conf *conf)
+static int	monitor_create(t_conf *conf)
 {
 	size_t	i;
 
@@ -46,7 +46,7 @@ int	monitor_create(t_conf *conf)
 	return (0);
 }
 
-int	philo_join(t_conf *conf)
+static int	philo_join(t_conf *conf)
 {
 	size_t	i;
 
@@ -62,7 +62,7 @@ int	philo_join(t_conf *conf)
 	return (0);
 }
 
-int	monitor_join(t_conf *conf)
+static int	monitor_join(t_conf *conf)
 {
 	size_t	i;
 

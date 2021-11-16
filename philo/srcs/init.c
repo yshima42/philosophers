@@ -6,13 +6,13 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:12 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 14:56:18 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 17:49:48 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
 
-void	init_philo(t_conf *conf)
+static void	init_philo(t_conf *conf)
 {
 	size_t	i;
 
@@ -30,7 +30,7 @@ void	init_philo(t_conf *conf)
 	}
 }
 
-void	init_monitor(t_conf *conf)
+static void	init_monitor(t_conf *conf)
 {
 	size_t	i;
 
@@ -45,7 +45,7 @@ void	init_monitor(t_conf *conf)
 	}
 }
 
-void	init_forks(t_conf *conf)
+static void	init_forks(t_conf *conf)
 {
 	size_t	i;
 

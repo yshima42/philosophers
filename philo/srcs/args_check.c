@@ -6,13 +6,13 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:06:34 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 12:50:39 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 17:52:28 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
 
-void	show_usage(void)
+static void	show_usage(void)
 {
 	printf("Usage:\t./philo num die eat sleep [eat_times]\n\n");
 	printf("\tnum:\tnumber_of_philosophers\n");
@@ -23,7 +23,7 @@ void	show_usage(void)
 	printf("\n");
 }
 
-void	show_num_error(void)
+static void	show_num_error(void)
 {
 	printf("Error: Args need to be positive integer (Limit: INT_MAX)\n");
 }
