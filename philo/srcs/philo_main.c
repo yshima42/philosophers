@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:21:46 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:39:12 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ static int	sleeping(t_philo *philo)
 	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
 	if (wait_action_time(philo, philo->conf->sleep_ms))
 		return (1);
-	usleep(50);
 	return (0);
 }
 
@@ -61,7 +60,6 @@ static int	eating(t_philo *philo)
 	pthread_mutex_unlock(&philo->conf->mutex_common);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1);
-	usleep(50);
 	return (0);
 }
 
@@ -85,5 +83,5 @@ void	*philo_main(void *arg)
 			break ;
 	}
 	put_forks(philo->conf, philo->id);
-	return ("finished");
+	return ("philo finished");
 }
