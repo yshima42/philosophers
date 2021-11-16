@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:03:12 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:05:47 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	*philo_main(void *arg)
 	philo->last_eat_ms = get_time_ms();
 	pthread_mutex_unlock(&philo->conf->m_common);
 	if (philo->id % 2 == 1)
-		usleep(philo->conf->eat_ms * 0.9 * 1000);
+		usleep(philo->conf->eat_ms * 0.5 * 1000);
 	while (1)
 	{
 		if (take_forks(philo->conf, philo->id)
