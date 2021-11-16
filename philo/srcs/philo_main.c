@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 10:39:50 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:01:36 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static bool	wait_action_time(t_philo *philo, size_t limit_ms)
 
 static int	thinking(t_philo *philo)
 {
-	print_action(philo->conf, philo->id, YELLOW"is thinking"END);
+	print_action(philo->conf, philo->id, GREEN"is thinking"END);
 	usleep(500);//検討
 	return (0);
 }
@@ -56,13 +56,12 @@ static int	sleeping(t_philo *philo)
 	print_action(philo->conf, philo->id, BLUE"is sleeping"END);
 	if (wait_action_time(philo, philo->conf->sleep_ms))
 		return (1);
-	usleep(50);
 	return (0);
 }
 
 static int	eating(t_philo *philo)
 {
-	print_action(philo->conf, philo->id, GREEN"is eating"END);
+	print_action(philo->conf, philo->id, YELLOW"is eating"END);
 	pthread_mutex_lock(&philo->conf->m_common);
 	philo->eat_count++;
 	philo->last_eat_ms = get_time_ms();	
@@ -73,7 +72,6 @@ static int	eating(t_philo *philo)
 	pthread_mutex_unlock(&philo->conf->m_common);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1);
-	usleep(50);
 	return (0);
 }
 
