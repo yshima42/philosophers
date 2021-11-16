@@ -1,5 +1,5 @@
 CC				= 	gcc
-CFLAGS			= 	-pthread -Wall -Wextra -Werror -fsanitize=thread
+CFLAGS			= 	-pthread -Wall -Wextra -Werror #-fsanitize=thread
 NAME			= 	philo
 INCLUDES		= 	includes
 SRCS_PATH		= 	./srcs/
