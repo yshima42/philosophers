@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:08:07 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:12:21 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 12:11:05 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static void	destroy_forks(t_conf *conf)
 void	destroy_all_mutex(t_conf *conf)
 {
 	destroy_forks(conf);
-	pthread_mutex_destroy(&conf->mutex_common);
+	pthread_mutex_destroy(&conf->m_common);
 }
 
 static void	free_monitor(t_conf *conf)

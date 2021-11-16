@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:06:34 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:41:18 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 12:03:48 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	show_usage(void)
 
 void	show_num_error(void)
 {
-	printf("Error: Args need to be positive integer\n");
+	printf("Error: Args need to be positive integer(INT_MAX)\n");
 }
 
 bool	args_check(int ac, char **av)

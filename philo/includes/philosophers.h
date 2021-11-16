@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 21:56:57 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:18:09 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 12:12:37 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@
 # define MAGENTA		"\033[35m"
 # define CYAN			"\033[36m"
 
-
 typedef struct s_conf	t_conf;
 
 typedef struct s_philo
@@ -70,7 +69,7 @@ typedef struct s_conf
 	size_t			num_must_eat;
 	size_t			num_full_philos;
 	bool			finish_flag;
-	pthread_mutex_t	mutex_common;
+	pthread_mutex_t	m_common;
 	t_monitor		**monitor;
 	t_philo			**philo;
 	pthread_mutex_t	**m_forks;
@@ -80,7 +79,7 @@ typedef struct s_conf
 bool	args_check(int ac, char **av);
 
 //ph_atoi.c
-int	ph_atoi(const char *str);
+int		ph_atoi(const char *str);
 
 //init_conf.c
 t_conf	*init_conf(int ac, char **av);
@@ -92,8 +91,8 @@ size_t	get_time_ms(void);
 void	ft_putstr_fd(char *s, int fd);
 
 //fork.c
-int	take_forks(t_conf *conf, size_t id);
-int put_forks(t_conf *conf, int id);
+int		take_forks(t_conf *conf, size_t id);
+int		put_forks(t_conf *conf, int id);
 void	fork_mutex(bool is_lock, bool is_right, size_t id, t_conf *conf);
 
 //monitor_main.c
@@ -111,7 +110,5 @@ void	all_free(t_conf *conf);
 
 //main.c
 void	print_action(t_conf *conf, size_t id, char *action);
-
-
 
 #endif

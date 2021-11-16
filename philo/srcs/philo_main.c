@@ -6,7 +6,7 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 15:10:39 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 11:47:03 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 12:11:01 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,14 @@ static int	sleeping(t_philo *philo)
 static int	eating(t_philo *philo)
 {
 	print_action(philo->conf, philo->id, "is eating");
-	pthread_mutex_lock(&philo->conf->mutex_common);
+	pthread_mutex_lock(&philo->conf->m_common);
 	philo->eat_count++;
 	philo->last_eat_ms = get_time_ms();
 	if (philo->eat_count == philo->conf->num_must_eat)
 		philo->conf->num_full_philos++;
 	if (philo->conf->num_full_philos == philo->conf->num_philos)
 		philo->conf->finish_flag = true;
-	pthread_mutex_unlock(&philo->conf->mutex_common);
+	pthread_mutex_unlock(&philo->conf->m_common);
 	if (wait_action_time(philo, philo->conf->eat_ms))
 		return (1);
 	return (0);
@@ -68,9 +68,9 @@ void	*philo_main(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	pthread_mutex_lock(&philo->conf->mutex_common);
+	pthread_mutex_lock(&philo->conf->m_common);
 	philo->last_eat_ms = get_time_ms();
-	pthread_mutex_unlock(&philo->conf->mutex_common);
+	pthread_mutex_unlock(&philo->conf->m_common);
 	if (philo->id % 2 == 1)
 		usleep(philo->conf->eat_ms * 0.9 * 1000);
 	while (1)
