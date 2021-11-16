@@ -6,15 +6,11 @@
 /*   By: yshimazu <yshimazu@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/29 14:44:08 by yshimazu          #+#    #+#             */
-/*   Updated: 2021/11/16 10:52:24 by yshimazu         ###   ########.fr       */
+/*   Updated: 2021/11/16 11:49:50 by yshimazu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philosophers.h"
-
-//forksのstatusを管理する変数を追加する
-//一人の時に分岐させる
-//makefileのオプション消す
 
 int	philo_create(t_conf *conf)
 {
